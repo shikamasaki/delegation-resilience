@@ -144,7 +144,7 @@ Attestationには次を含めます。
 - started/completed time
 - structured measurements
 - human participation、authority、operational access
-- evidence requirementとartifactの対応
+- 一意なobservation IDを持つevidence requirementとartifactの対応
 - evidence gaps and residual uncertainty
 - issuer、validity、evaluated profile digest
 

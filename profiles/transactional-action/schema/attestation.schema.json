@@ -129,8 +129,9 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["evidenceRequirementRef", "artifact", "observedAt"],
+        "required": ["evidenceObservationId", "evidenceRequirementRef", "artifact", "observedAt"],
         "properties": {
+          "evidenceObservationId": { "type": "string", "minLength": 1 },
           "evidenceRequirementRef": { "type": "string", "minLength": 1 },
           "artifact": { "$ref": "common.schema.json#/$defs/artifactReference" },
           "observedAt": { "type": "string", "format": "date-time" }

@@ -192,6 +192,32 @@ def validate_attestation(
     if valid_until and valid_until <= as_of:
         errors.append("attestation is stale at the requested evaluation time")
 
+    attestation_ids = {
+        "claimResults.claimRef": [
+            item.get("claimRef") for item in attestation.get("claimResults", [])
+        ],
+        "measurements.measurementId": [
+            item.get("measurementId") for item in attestation.get("measurements", [])
+        ],
+        "actualConditions.faultSchedule.faultId": [
+            item.get("faultId")
+            for item in attestation.get("actualConditions", {}).get(
+                "faultSchedule", []
+            )
+        ],
+        "systemUnderTest.components.componentId": [
+            item.get("componentId")
+            for item in attestation.get("systemUnderTest", {}).get("components", [])
+        ],
+        "evidence.evidenceObservationId": [
+            item.get("evidenceObservationId")
+            for item in attestation.get("evidence", [])
+        ],
+    }
+    for label, values in attestation_ids.items():
+        for duplicate in _duplicates([value for value in values if value]):
+            errors.append(f"duplicate {label}: {duplicate}")
+
     measurements = {
         item.get("measurementId") for item in attestation.get("measurements", [])
     }
@@ -213,6 +239,8 @@ def validate_attestation(
         if claim is None:
             errors.append(f"{owner} references missing RecoveryClaim")
             continue
+        if scenario is not None and claim_ref not in set(scenario.get("claimRefs", [])):
+            errors.append(f"{owner} is not covered by scenario[{scenario_ref}]")
 
         _check_refs(
             errors,

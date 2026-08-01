@@ -82,6 +82,79 @@ class ProfileSemanticValidationTest(unittest.TestCase):
         )
         self.assertTrue(any("tabletop" in error for error in errors))
 
+    def test_claim_outside_scenario_scope_is_rejected(self):
+        changed = copy.deepcopy(self.profile)
+        second_claim = copy.deepcopy(changed["spec"]["recoveryClaims"][0])
+        second_claim["claimId"] = "different-recovery-claim"
+        changed["spec"]["recoveryClaims"].append(second_claim)
+        attestation = self._attestation()
+        attestation["claimResults"][0]["claimRef"] = "different-recovery-claim"
+        errors = MODULE.validate_attestation(
+            changed,
+            attestation,
+            dt.datetime(2026, 8, 2, tzinfo=dt.timezone.utc),
+        )
+        self.assertTrue(any("is not covered by scenario" in error for error in errors))
+
+    def test_duplicate_claim_result_is_rejected(self):
+        attestation = self._attestation()
+        attestation["claimResults"].append(
+            copy.deepcopy(attestation["claimResults"][0])
+        )
+        self._assert_duplicate(attestation, "claimResults.claimRef")
+
+    def test_duplicate_measurement_id_is_rejected(self):
+        attestation = self._attestation()
+        attestation["measurements"].append(
+            copy.deepcopy(attestation["measurements"][0])
+        )
+        self._assert_duplicate(attestation, "measurements.measurementId")
+
+    def test_duplicate_fault_id_is_rejected(self):
+        attestation = self._attestation()
+        attestation["actualConditions"]["faultSchedule"].append(
+            copy.deepcopy(attestation["actualConditions"]["faultSchedule"][0])
+        )
+        self._assert_duplicate(
+            attestation, "actualConditions.faultSchedule.faultId"
+        )
+
+    def test_duplicate_component_id_is_rejected(self):
+        attestation = self._attestation()
+        attestation["systemUnderTest"]["components"].append(
+            copy.deepcopy(attestation["systemUnderTest"]["components"][0])
+        )
+        self._assert_duplicate(
+            attestation, "systemUnderTest.components.componentId"
+        )
+
+    def test_duplicate_evidence_observation_id_is_rejected(self):
+        attestation = self._attestation()
+        attestation["evidence"].append(copy.deepcopy(attestation["evidence"][0]))
+        self._assert_duplicate(attestation, "evidence.evidenceObservationId")
+
+    def test_same_evidence_requirement_allows_distinct_observations(self):
+        attestation = self._attestation()
+        second_observation = copy.deepcopy(attestation["evidence"][0])
+        second_observation["evidenceObservationId"] = (
+            "refund-provider-outcome-observation-002"
+        )
+        attestation["evidence"].append(second_observation)
+        errors = MODULE.validate_attestation(
+            self.profile,
+            attestation,
+            dt.datetime(2026, 8, 2, tzinfo=dt.timezone.utc),
+        )
+        self.assertEqual([], errors)
+
+    def _assert_duplicate(self, attestation, label):
+        errors = MODULE.validate_attestation(
+            self.profile,
+            attestation,
+            dt.datetime(2026, 8, 2, tzinfo=dt.timezone.utc),
+        )
+        self.assertTrue(any(f"duplicate {label}" in error for error in errors))
+
     def _attestation(self):
         return {
             "scenarioRef": "refund-response-loss-after-commit",
@@ -114,8 +187,16 @@ class ProfileSemanticValidationTest(unittest.TestCase):
                 }
             ],
             "evidence": [
-                {"evidenceRequirementRef": "refund-provider-outcome"}
+                {
+                    "evidenceObservationId": "refund-provider-outcome-observation-001",
+                    "evidenceRequirementRef": "refund-provider-outcome",
+                }
             ],
+            "systemUnderTest": {
+                "components": [
+                    {"componentId": "refund-runner"}
+                ]
+            },
             "actualConditions": {
                 "faultSchedule": [
                     {

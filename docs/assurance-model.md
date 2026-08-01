@@ -72,6 +72,8 @@ Exerciseの結果は、次の形式で表現します。
 
 Attestationは少なくともexercise mode、開始・終了時刻、system under testとversion、実際のfault scheduleとload、shared dependencies、human participation、structured measurements、evidence gapを保持します。
 
+同一要件に対する複数のevidence observationは別々のobservation IDを持ちます。同じmeasurement、fault、component、claim resultもIDまたはclaim参照によって一意にし、矛盾する値を一つのAttestation内で併記しません。
+
 証拠強度には上限があります。
 
 - deterministic simulationはtechnical state transitionを検証できるが、実在する人間のtakeover capabilityを実証できない。

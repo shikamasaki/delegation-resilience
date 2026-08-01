@@ -55,10 +55,14 @@ JSON Schemaは構造とcardinalityを検証します。[Semantic validator](../.
 - `constraintRefs`と`evidenceRequirementRefs`が同じprofile内に存在すること
 - すべてのconstitutional constraintが少なくとも一つのRecoveryClaimから参照されること
 - `SUPPORTED`でないRecoveryClaimが`PROHIBITED`であること
+- Attestationのclaimがscenarioの対象であること
+- Attestationのclaim、measurement、fault、component、evidence observation IDの一意性
 - Attestationのscenario、claim、measurement、evidence参照
 - `demonstrated`がclaimのrequired capabilityとevidenceを満たすこと
 - deterministic simulationだけで`human_takeover`を実証扱いにしないこと
 - Attestationの時刻順序とexpiry
+
+同じevidence requirementを時刻やsourceを変えて複数回観測することは許可します。その場合も各観測は一意な`evidenceObservationId`を持ち、異なる値を同じIDで上書きできません。
 
 次はまだ後続linterの対象です。
 

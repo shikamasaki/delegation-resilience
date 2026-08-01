@@ -70,7 +70,8 @@ measurements:
     unit: count
     method: authoritative provider outcome query
 evidence:
-  - evidenceRequirementRef: refund-provider-outcome
+  - evidenceObservationId: refund-provider-outcome-observation-001
+    evidenceRequirementRef: refund-provider-outcome
     artifact:
       uri: synthetic/evidence/refund-provider-outcome.json
       digest: sha256:1111111111111111111111111111111111111111111111111111111111111111

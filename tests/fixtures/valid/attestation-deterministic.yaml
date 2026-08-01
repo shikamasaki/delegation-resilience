@@ -5,7 +5,7 @@ metadata:
   version: 0.1.0-alpha.1
 evaluatedProfile:
   uri: ../../../examples/refund/profile.yaml
-  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  digest: sha256:beab8cfcaf7f20dfacae1fae070f38aa3e8259f9047c72d6f41596af128bddbf
 scenarioRef: refund-response-loss-after-commit
 issuer:
   id: synthetic-test-runner
@@ -43,15 +43,18 @@ humanParticipation:
   mode: none
   participantCount: 0
   roles: []
+  participants: []
   authorityVerified: false
+  authorityEvidence: []
   operationalAccessVerified: false
+  operationalAccessEvidence: []
   observations:
     - No human takeover capability was exercised.
 claimResults:
   - claimRef: refund-provider-outage
     result: not_demonstrated
-    demonstratedCapabilities:
-      - external_reconciliation
+    demonstratedCapabilities: []
+    capabilityEvidence: []
     measurementRefs:
       - unknown-duration
       - duplicate-refunds
@@ -72,9 +75,10 @@ measurements:
 evidence:
   - evidenceObservationId: refund-provider-outcome-observation-001
     evidenceRequirementRef: refund-provider-outcome
+    finding: satisfied
     artifact:
-      uri: synthetic/evidence/refund-provider-outcome.json
-      digest: sha256:1111111111111111111111111111111111111111111111111111111111111111
+      uri: evidence/semantic-test.json
+      digest: sha256:f858eabe0b2bf2ba76377697404a6285491c4dee501e036bf6ce6650bc7247c4
     observedAt: "2026-08-02T00:02:00Z"
 evidenceGaps:
   - No qualified human participated.

@@ -1,0 +1,31 @@
+{
+  "claimResultCeilingBeforeCompletedDrill": "not_demonstrated",
+  "declaredOperatorCount": 0,
+  "digestBoundPrerequisitesComplete": false,
+  "evaluatedProfileDigest": "sha256:beab8cfcaf7f20dfacae1fae070f38aa3e8259f9047c72d6f41596af128bddbf",
+  "humanTakeoverMayBeClaimed": false,
+  "manifestDigest": "sha256:6a4b687184e9c3ef3f0e0e82fa5b0c770c0a943a1dd5985f25fa436acd4bc639",
+  "missingPrerequisites": [
+    "a provisioned sandbox environment must be identified",
+    "an accountable facilitator must be assigned",
+    "at least 2 real qualified operators are required",
+    "fault injection must be approved",
+    "the refund provider sandbox must be ready",
+    "the evidence sink must be ready",
+    "the 15-minute handover timer must be ready",
+    "the 24-hour mission clock must be ready",
+    "abort authority must be assigned",
+    "participant briefing and consent must be recorded",
+    "each operator's right to pause or withdraw must be confirmed",
+    "a fatigue-aware shift and reserve staffing plan must be ready",
+    "operator-channel independence requires digest-bound evidence for: agent_connector, identity, policy, provider_outcome",
+    "participant safeguards require digest-bound evidence for: briefing_consent, data_use_retention, fatigue_shift_plan, operator_abort_rights",
+    "trusted issuer signature verification is not implemented; preflight remains advisory"
+  ],
+  "preflight": "refund-human-takeover/v0alpha1",
+  "ready": false,
+  "reason": "Preflight readiness is not exercise evidence. human_takeover can only be claimed by a completed, semantically valid Attestation with facilitated or live participants, verified authority, verified access, observed human-handover evidence, and trusted issuer signature verification.",
+  "requiredOperatorCount": 2,
+  "scenarioRef": "refund-facilitated-human-takeover",
+  "trustedIssuerVerificationImplemented": false
+}

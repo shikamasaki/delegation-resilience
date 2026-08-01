@@ -36,9 +36,63 @@
         },
         "sharedDependencies": {
           "type": "array",
+          "description": "Dependency labels unless dependencyAnalysisRequired is true; when true, every item is a component reference in dependencyTopology.",
           "items": { "type": "string", "minLength": 1 }
+        },
+        "dependencyAnalysisRequired": {
+          "type": "boolean",
+          "description": "When true, dependencyTopology is mandatory and sharedDependencies plus inject targets are checked as topology references."
+        },
+        "dependencyTopology": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["componentId", "role", "dependencyRefs"],
+            "properties": {
+              "componentId": { "type": "string", "minLength": 1 },
+              "role": {
+                "enum": [
+                  "primary_execution",
+                  "fallback_execution",
+                  "authorization",
+                  "external_outcome",
+                  "human_handover",
+                  "evidence",
+                  "other"
+                ]
+              },
+              "dependencyRefs": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
+        },
+        "humanEvidenceBindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["qualification", "authority", "operationalAccess"],
+          "properties": {
+            "qualification": { "$ref": "#/$defs/humanEvidenceBinding" },
+            "authority": { "$ref": "#/$defs/humanEvidenceBinding" },
+            "operationalAccess": { "$ref": "#/$defs/humanEvidenceBinding" }
+          }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["dependencyAnalysisRequired"],
+            "properties": {
+              "dependencyAnalysisRequired": { "const": true }
+            }
+          },
+          "then": { "required": ["dependencyTopology"] }
+        }
+      ]
     },
     "injects": {
       "type": "array",
@@ -69,6 +123,22 @@
       "type": "array",
       "minItems": 1,
       "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "humanEvidenceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["objectRef", "covers"],
+      "properties": {
+        "objectRef": { "type": "string", "minLength": 1 },
+        "covers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
     }
   }
 }

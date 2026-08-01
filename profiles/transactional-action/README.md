@@ -32,6 +32,9 @@ Attestationは実測結果であり、profile本文へ埋め込みません。
 - [EvidenceProfile](schema/evidence-profile.schema.json)
 - [ExerciseSpec](schema/exercise.schema.json)
 - [ExerciseAttestation](schema/attestation.schema.json)
+- [ExerciseEvidence](schema/exercise-evidence.schema.json)
+- [HumanDrillEvidence](schema/human-drill-evidence.schema.json)
+- [Human drill preflight](schema/human-drill-preflight.schema.json)
 - [Runtime state snapshot](schema/runtime-state.schema.json)
 
 Schemas use JSON Schema Draft 2020-12. YAMLはauthoring convenienceであり、duplicate keyを拒否してJSON data modelへ変換してから検証します。
@@ -44,6 +47,9 @@ v0alpha1への適合確認は、JSON Schemaだけでは完了しません。構�
 python3 -m pip install -r requirements-validation.txt
 check-jsonschema --schemafile profiles/transactional-action/schema/profile.schema.json examples/refund/profile.yaml
 python3 tools/validate_profile.py examples/refund/profile.yaml
+python3 tools/validate_profile.py examples/refund/profile.yaml \
+  --attestation examples/refund/game-day/attestation.yaml \
+  --artifact-root . --as-of 2026-08-03T00:00:00Z
 ```
 
 JSON Schema単独で通過したdangling referenceやunsupported deploymentを、valid profileとして扱いません。CIは両方を必須stepとして実行します。
@@ -58,17 +64,29 @@ JSON Schemaは構造とcardinalityを検証します。[Semantic validator](../.
 - Attestationのclaimがscenarioの対象であること
 - Attestationのclaim、measurement、fault、component、evidence observation IDの一意性
 - Attestationのscenario、claim、measurement、evidence参照
+- Attestationの`evaluatedProfile.digest`がRFC 8785 canonical profile digestと一致すること
+- Attestationのevidence artifactと宣言されたSUT artifactが、明示したartifact root内のlocal bytesへ解決でき、SHA-256 digestと一致すること
+- exercise evidenceが`ExerciseEvidence` envelopeであり、scenario、environment、issuer、観測時刻、requirement、findingが外側のAttestation observationと一致すること
+- 各`demonstratedCapabilities`が`capabilityEvidence`で個別のmeasurementとevidence requirementへ束縛されること
+- built-in deterministic runnerの技術的部分能力は、同じprofileから再生成したartifactとのbyte-for-byte一致がある場合だけ昇格できること
 - `demonstrated`がclaimのrequired capabilityとevidenceを満たすこと
-- deterministic simulationだけで`human_takeover`を実証扱いにしないこと
+- `demonstrated`が参照するevidence observationの`finding`が`satisfied`であること
+- deterministic simulationだけでRecoveryClaim全体を`demonstrated`にしないこと
+- `handover`と`human_takeover`にparticipant単位のqualification、authority、operational-access artifactがあり、Attestationから解決したlocal bytesのdigestと一致すること
 - Attestationの時刻順序とexpiry
 
-同じevidence requirementを時刻やsourceを変えて複数回観測することは許可します。その場合も各観測は一意な`evidenceObservationId`を持ち、異なる値を同じIDで上書きできません。
+同じevidence requirementを時刻やsourceを変えて複数回観測することは許可します。その場合も各観測は一意な`evidenceObservationId`を持ち、異なる値を同じIDで上書きできません。各観測は`finding: satisfied | contradicted | unavailable | inconclusive`を持ちます。Negative observationもevidenceですが、requirementを満たした証拠ではありません。
+
+Human evidenceは`HumanDrillEvidence` envelopeで、scenario、sandbox environment、participant、evidence type、対象、issuer、観測時刻、期限をartifact内部にも保持し、scenarioの`humanEvidenceBindings`および外側の参照と照合します。現段階の`assurance: digest_bound`は内容の完全性と内部整合性を示すだけで、issuer真正性を示しません。署名・trust store検証は未実装であるため、v0alpha1 validatorは`handover`と`human_takeover`の能力実証への昇格を常に拒否します。
+
+Technical evidenceもdigest一致だけではpositive assuranceとして扱いません。v0alpha1で技術的部分能力を昇格できるのは、validatorが明示的に知るbuilt-in deterministic runnerを同じprofileで再実行し、参照artifactが再生成bytesと一致する場合だけです。未知のrunnerや自己申告envelopeは、構造と完全性を検証できても能力を昇格できません。
+
+`sharedDependencies`は、`dependencyAnalysisRequired`がないscenarioでは条件を表すlabelです。`dependencyAnalysisRequired: true`の場合だけ、`dependencyTopology`が必須となり、shared dependencyとfault targetをcomponent参照として検証します。
 
 次はまだ後続linterの対象です。
 
 - recovery claimのdependency IDと実際のconfigurationの対応
 - 複数claimを束ねたdeployment全体のdisposition導出
-- Attestationのprofile digest、scenario、claimの一致
 - dependency変更に伴うAttestationの自動失効
 
 ## Canonicalization and digest

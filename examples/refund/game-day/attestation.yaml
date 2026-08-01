@@ -5,7 +5,7 @@ metadata:
   version: 0.1.0-alpha.1
 evaluatedProfile:
   uri: ../profile.yaml
-  digest: sha256:61c48216664421692999e8edb4d0cd85c64c84f6b95c80316c0dee8df81a8f33
+  digest: sha256:beab8cfcaf7f20dfacae1fae070f38aa3e8259f9047c72d6f41596af128bddbf
 scenarioRef: refund-response-loss-after-commit
 issuer:
   id: refund-game-day-runner
@@ -23,13 +23,13 @@ systemUnderTest:
     version: 0.1.0-alpha.1
     artifact:
       uri: ../../../game_days/refund/runner.py
-      digest: sha256:31b0f094a058d6193a2dcb102d07d3616a0e3dd22cbce8731b286177e3a85782
+      digest: sha256:55861164c7b0a6f457df7cda63593bda736987bcb8fbd2feb89592c138c2a8bb
   - componentId: fake-refund-provider
     kind: authoritative-outcome-simulator
     version: 0.1.0-alpha.1
     artifact:
       uri: ../../../game_days/refund/runner.py
-      digest: sha256:31b0f094a058d6193a2dcb102d07d3616a0e3dd22cbce8731b286177e3a85782
+      digest: sha256:55861164c7b0a6f457df7cda63593bda736987bcb8fbd2feb89592c138c2a8bb
 actualConditions:
   randomSeed: refund-response-loss-v0alpha1-seed-1
   faultSchedule:
@@ -60,8 +60,11 @@ humanParticipation:
   mode: none
   participantCount: 0
   roles: []
+  participants: []
   authorityVerified: false
+  authorityEvidence: []
   operationalAccessVerified: false
+  operationalAccessEvidence: []
   observations:
   - No human takeover capability was exercised.
 claimResults:
@@ -69,6 +72,14 @@ claimResults:
   result: not_demonstrated
   demonstratedCapabilities:
   - external_reconciliation
+  capabilityEvidence:
+  - capability: external_reconciliation
+    measurementRefs:
+    - profile-aware-response-lost-effects
+    - profile-aware-duplicate-refunds
+    - profile-aware-reconciled-unknowns
+    evidenceRequirementRefs:
+    - refund-provider-outcome
   measurementRefs:
   - profile-aware-response-lost-effects
   - profile-aware-duplicate-refunds
@@ -114,15 +125,17 @@ measurements:
 evidence:
 - evidenceObservationId: profile-aware-provider-outcomes
   evidenceRequirementRef: refund-provider-outcome
+  finding: satisfied
   artifact:
     uri: evidence/profile-aware-provider-outcomes.json
-    digest: sha256:5cd534745a550ff65264ebed88043b283784872a90f009bbd67012ac417ee5f8
+    digest: sha256:cca0d3f7833802ed6ef02c1014033c022c3202ee5bf3233213aa99a9d4980967
   observedAt: '2026-08-02T01:00:00Z'
 - evidenceObservationId: baseline-provider-outcomes
   evidenceRequirementRef: refund-provider-outcome
+  finding: satisfied
   artifact:
     uri: evidence/baseline-provider-outcomes.json
-    digest: sha256:a57125e5ceddd2104ccaa24a3c6c243d9b64214449d3ca0efad9919bfda2f586
+    digest: sha256:f8cf4a3cd04f108ae2294cf38ce6d40f21e375d5d14a19ed6276f0b444437c56
   observedAt: '2026-08-02T01:00:00Z'
 evidenceGaps:
 - No qualified human participated.

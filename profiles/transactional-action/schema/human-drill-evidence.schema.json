@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HumanDrillEvidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "scenarioRef", "environmentRef", "evidenceType", "subjectRefs", "objectRef", "finding", "covers", "issuer", "observedAt", "validUntil", "assurance"],
+  "properties": {
+    "apiVersion": { "const": "delegation-resilience.org/v0alpha1" },
+    "kind": { "const": "HumanDrillEvidence" },
+    "scenarioRef": { "type": "string", "minLength": 1 },
+    "environmentRef": { "type": "string", "minLength": 1 },
+    "evidenceType": { "enum": ["qualification", "authority", "operational_access", "channel_independence", "participant_safeguard"] },
+    "subjectRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "objectRef": { "type": "string", "minLength": 1 },
+    "finding": { "const": "satisfied" },
+    "covers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "issuer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "enum": ["human", "service", "workload", "organization"] }
+      }
+    },
+    "observedAt": { "type": "string", "format": "date-time" },
+    "validUntil": { "type": "string", "format": "date-time" }
+    ,
+    "assurance": { "const": "digest_bound" }
+  }
+}

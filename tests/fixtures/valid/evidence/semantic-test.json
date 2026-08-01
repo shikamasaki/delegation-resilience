@@ -1,0 +1,23 @@
+{
+  "apiVersion": "delegation-resilience.org/v0alpha1",
+  "assertions": [
+    {
+      "evidenceRequirementRef": "refund-provider-outcome",
+      "finding": "satisfied"
+    }
+  ],
+  "assurance": "digest_bound",
+  "environmentRef": "synthetic-test-fixture",
+  "issuer": {
+    "id": "synthetic-test-runner",
+    "type": "workload"
+  },
+  "kind": "ExerciseEvidence",
+  "observedAt": "2026-08-02T00:02:00Z",
+  "payload": {
+    "fixture": "semantic-attestation-evidence",
+    "observed": true
+  },
+  "scenarioRef": "refund-response-loss-after-commit",
+  "validUntil": "2099-01-01T00:00:00Z"
+}

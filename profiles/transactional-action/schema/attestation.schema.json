@@ -74,7 +74,7 @@
     "humanParticipation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["mode", "participantCount", "roles", "authorityVerified", "operationalAccessVerified"],
+      "required": ["mode", "participantCount", "roles", "participants", "authorityVerified", "authorityEvidence", "operationalAccessVerified", "operationalAccessEvidence"],
       "properties": {
         "mode": { "enum": ["none", "simulated", "facilitated", "live"] },
         "participantCount": { "type": "integer", "minimum": 0 },
@@ -82,8 +82,31 @@
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
         },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["participantId", "role", "simulated", "qualified", "qualificationEvidence"],
+            "properties": {
+              "participantId": { "type": "string", "minLength": 1 },
+              "role": { "type": "string", "minLength": 1 },
+              "simulated": { "type": "boolean" },
+              "qualified": { "type": "boolean" },
+              "qualificationEvidence": { "$ref": "common.schema.json#/$defs/artifactReference" }
+            }
+          }
+        },
         "authorityVerified": { "type": "boolean" },
+        "authorityEvidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/participantEvidence" }
+        },
         "operationalAccessVerified": { "type": "boolean" },
+        "operationalAccessEvidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/participantEvidence" }
+        },
         "observations": { "type": "array", "items": { "type": "string", "minLength": 1 } }
       }
     },
@@ -93,7 +116,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["claimRef", "result", "demonstratedCapabilities", "measurementRefs", "evidenceRequirementRefs"],
+        "required": ["claimRef", "result", "demonstratedCapabilities", "capabilityEvidence", "measurementRefs", "evidenceRequirementRefs"],
         "properties": {
           "claimRef": { "type": "string", "minLength": 1 },
           "result": { "enum": ["demonstrated", "not_demonstrated", "failed", "inconclusive"] },
@@ -101,6 +124,10 @@
             "type": "array",
             "uniqueItems": true,
             "items": { "$ref": "common.schema.json#/$defs/recoveryCapability" }
+          },
+          "capabilityEvidence": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/capabilityEvidence" }
           },
           "measurementRefs": {
             "type": "array",
@@ -129,10 +156,11 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["evidenceObservationId", "evidenceRequirementRef", "artifact", "observedAt"],
+        "required": ["evidenceObservationId", "evidenceRequirementRef", "finding", "artifact", "observedAt"],
         "properties": {
           "evidenceObservationId": { "type": "string", "minLength": 1 },
           "evidenceRequirementRef": { "type": "string", "minLength": 1 },
+          "finding": { "enum": ["satisfied", "contradicted", "unavailable", "inconclusive"] },
           "artifact": { "$ref": "common.schema.json#/$defs/artifactReference" },
           "observedAt": { "type": "string", "format": "date-time" }
         }
@@ -148,6 +176,35 @@
     }
   },
   "$defs": {
+    "capabilityEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability", "measurementRefs", "evidenceRequirementRefs"],
+      "properties": {
+        "capability": { "$ref": "common.schema.json#/$defs/recoveryCapability" },
+        "measurementRefs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "evidenceRequirementRefs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "participantEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["participantRef", "artifact"],
+      "properties": {
+        "participantRef": { "type": "string", "minLength": 1 },
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactReference" }
+      }
+    },
     "measurement": {
       "type": "object",
       "additionalProperties": false,

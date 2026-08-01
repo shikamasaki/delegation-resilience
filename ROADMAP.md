@@ -49,12 +49,14 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 ### Build
 
 - [x] Refund response-loss deterministic comparison prototype
-- [ ] v0alpha validatorのdependency・digest・invalidation lint rules
-- [ ] local deterministic exercise runner
+- [x] v0alpha validatorのdependency referenceとcanonical profile digest lint
+- [ ] dependency変更に伴うAttestationの自動失効
+- [x] local deterministic exercise runner
 - [ ] fake model/tool/approver/evidence sink
-- [ ] epistemic `UNKNOWN`とexternal reconciliation
-- [ ] capability-specific degradation
-- [ ] fallback qualification
+- [x] epistemic `UNKNOWN`とexternal reconciliation
+- [ ] capability-specific degradation（deterministic control-flow prototype以外）
+- [x] fallbackのdependency-topology独立性判定
+- [ ] behavioral exerciseによるfallback qualification
 - [ ] signed exercise attestationとevidence packet
 - [ ] OrgForgeでのend-to-end dogfood
 

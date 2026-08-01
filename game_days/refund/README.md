@@ -1,6 +1,8 @@
-# Refund response-loss Game Day
+# Refund Recovery Game Days
 
 最初の実行可能なRecovery Game Dayです。返金providerがcommitした直後にresponseを失う同一fault scheduleを、二つのworkflowへ適用します。
+
+このdirectoryには、response-loss比較に加えてshared-fate dependency exerciseとhuman takeover preflightも含まれます。
 
 ## Compared contracts
 
@@ -38,6 +40,9 @@ Fault対象は、seedとintent IDのSHA-256順位で選ぶため、Pythonのrand
 python3 -m pip install -r requirements-validation.txt
 python3 -m game_days.refund.runner --write
 python3 -m game_days.refund.runner --verify
+python3 -m game_days.refund.shared_fate --write
+python3 -m game_days.refund.shared_fate --verify
+python3 -m game_days.refund.human_drill --verify
 ```
 
 生成物は[examples/refund/game-day](../../examples/refund/game-day/)へ保存します。
@@ -75,3 +80,34 @@ Attestationは`not_demonstrated`を維持し、`external_reconciliation`だけ�
 - production providerとの同等性
 - policy、IdP、evidence sinkを含むshared-fate
 - operator capacity
+
+## Shared-fate dependency exercise
+
+`refund-shared-idp-outage`は、primary worker、fallback worker、authorization policy、provider status API、operator channelが同じ`shared-control-plane-idp`へ直接または推移的に依存する条件を実行します。
+
+固定結果：
+
+- shared-fate detected: `true`
+- fallback defined: `true`
+- independent fallback count: `0`
+- authorization、external outcome probe、operator channel: unavailable
+- execution path: unavailable
+- financial commits during fault: `0`
+- pending backlog at fault end: `120`
+- backlog tolerance exceeded: `true`（declared maximumは100）
+- demonstrated capability: なし
+- RecoveryClaim result: `not_demonstrated`
+
+Runnerは依存グラフへfaultを伝播させます。今回の固定条件では実行経路自体も失われたため、financial commitが0でもactiveな`containment`を実証したとは扱いません。別のadversarial fixtureでは、実行経路が残りauthorizationだけが失われる条件を作り、guard bypassならclaimが`failed`になることを検証します。fallbackが設定されていても、dependency topology上の独立性がなければ利用可能とは扱いません。独立性があってもbehavioral exerciseなしに`qualified`とは主張しません。backlog toleranceは違反しており、mission adequacyも満たしていません。生成物は[shared-fate artifacts](../../examples/refund/game-day/shared-fate/)にあります。
+
+これは`deterministic_simulation`です。実在するidentity、policy、provider、operator経路の可用性や独立性は証明しません。その限界はAttestationの`evidenceGaps`に残します。
+
+## Human takeover gate
+
+[Facilitated drill runbook](HUMAN_DRILL.md)は、2人のqualified operator、実権限、実access、operator channel独立性、15分handover、24時間mission recoveryを別々に測定します。
+
+```bash
+python3 -m game_days.refund.human_drill --check-ready
+```
+
+repositoryの初期preflightは意図的に終了コード1です。現行v0alpha1では、digest-bound prerequisiteがすべて揃っても、署名・trust storeによるissuer検証が未実装なので`ready`にはなりません。completed drillと信頼済み証拠検証の両方がない限り、`human_takeover`は`demonstrated`になりません。

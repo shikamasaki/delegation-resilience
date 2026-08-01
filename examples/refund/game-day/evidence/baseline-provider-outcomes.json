@@ -1,0 +1,792 @@
+{
+  "contract": {
+    "idempotencyKeyScope": "execution_attempt",
+    "retryPolicy": "retry_on_timeout_without_reconciliation",
+    "timeoutSemantics": "FAILED"
+  },
+  "events": [
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0006"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0006"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0014"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0014"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0048"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0048"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0051"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0051"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0058"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0058"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0063"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0063"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0064"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0064"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0071"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0071"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0079"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0079"
+    },
+    {
+      "event": "TIMEOUT_INTERPRETED_AS_FAILURE",
+      "intentId": "refund-intent-0084"
+    },
+    {
+      "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
+      "intentId": "refund-intent-0084"
+    }
+  ],
+  "providerEffects": [
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0001",
+      "idempotencyKey": "refund-intent-0001:attempt:1",
+      "intentId": "refund-intent-0001"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0002",
+      "idempotencyKey": "refund-intent-0002:attempt:1",
+      "intentId": "refund-intent-0002"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0003",
+      "idempotencyKey": "refund-intent-0003:attempt:1",
+      "intentId": "refund-intent-0003"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0004",
+      "idempotencyKey": "refund-intent-0004:attempt:1",
+      "intentId": "refund-intent-0004"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0005",
+      "idempotencyKey": "refund-intent-0005:attempt:1",
+      "intentId": "refund-intent-0005"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0006",
+      "idempotencyKey": "refund-intent-0006:attempt:1",
+      "intentId": "refund-intent-0006"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0007",
+      "idempotencyKey": "refund-intent-0006:attempt:2",
+      "intentId": "refund-intent-0006"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0008",
+      "idempotencyKey": "refund-intent-0007:attempt:1",
+      "intentId": "refund-intent-0007"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0009",
+      "idempotencyKey": "refund-intent-0008:attempt:1",
+      "intentId": "refund-intent-0008"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0010",
+      "idempotencyKey": "refund-intent-0009:attempt:1",
+      "intentId": "refund-intent-0009"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0011",
+      "idempotencyKey": "refund-intent-0010:attempt:1",
+      "intentId": "refund-intent-0010"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0012",
+      "idempotencyKey": "refund-intent-0011:attempt:1",
+      "intentId": "refund-intent-0011"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0013",
+      "idempotencyKey": "refund-intent-0012:attempt:1",
+      "intentId": "refund-intent-0012"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0014",
+      "idempotencyKey": "refund-intent-0013:attempt:1",
+      "intentId": "refund-intent-0013"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0015",
+      "idempotencyKey": "refund-intent-0014:attempt:1",
+      "intentId": "refund-intent-0014"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0016",
+      "idempotencyKey": "refund-intent-0014:attempt:2",
+      "intentId": "refund-intent-0014"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0017",
+      "idempotencyKey": "refund-intent-0015:attempt:1",
+      "intentId": "refund-intent-0015"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0018",
+      "idempotencyKey": "refund-intent-0016:attempt:1",
+      "intentId": "refund-intent-0016"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0019",
+      "idempotencyKey": "refund-intent-0017:attempt:1",
+      "intentId": "refund-intent-0017"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0020",
+      "idempotencyKey": "refund-intent-0018:attempt:1",
+      "intentId": "refund-intent-0018"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0021",
+      "idempotencyKey": "refund-intent-0019:attempt:1",
+      "intentId": "refund-intent-0019"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0022",
+      "idempotencyKey": "refund-intent-0020:attempt:1",
+      "intentId": "refund-intent-0020"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0023",
+      "idempotencyKey": "refund-intent-0021:attempt:1",
+      "intentId": "refund-intent-0021"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0024",
+      "idempotencyKey": "refund-intent-0022:attempt:1",
+      "intentId": "refund-intent-0022"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0025",
+      "idempotencyKey": "refund-intent-0023:attempt:1",
+      "intentId": "refund-intent-0023"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0026",
+      "idempotencyKey": "refund-intent-0024:attempt:1",
+      "intentId": "refund-intent-0024"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0027",
+      "idempotencyKey": "refund-intent-0025:attempt:1",
+      "intentId": "refund-intent-0025"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0028",
+      "idempotencyKey": "refund-intent-0026:attempt:1",
+      "intentId": "refund-intent-0026"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0029",
+      "idempotencyKey": "refund-intent-0027:attempt:1",
+      "intentId": "refund-intent-0027"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0030",
+      "idempotencyKey": "refund-intent-0028:attempt:1",
+      "intentId": "refund-intent-0028"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0031",
+      "idempotencyKey": "refund-intent-0029:attempt:1",
+      "intentId": "refund-intent-0029"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0032",
+      "idempotencyKey": "refund-intent-0030:attempt:1",
+      "intentId": "refund-intent-0030"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0033",
+      "idempotencyKey": "refund-intent-0031:attempt:1",
+      "intentId": "refund-intent-0031"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0034",
+      "idempotencyKey": "refund-intent-0032:attempt:1",
+      "intentId": "refund-intent-0032"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0035",
+      "idempotencyKey": "refund-intent-0033:attempt:1",
+      "intentId": "refund-intent-0033"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0036",
+      "idempotencyKey": "refund-intent-0034:attempt:1",
+      "intentId": "refund-intent-0034"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0037",
+      "idempotencyKey": "refund-intent-0035:attempt:1",
+      "intentId": "refund-intent-0035"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0038",
+      "idempotencyKey": "refund-intent-0036:attempt:1",
+      "intentId": "refund-intent-0036"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0039",
+      "idempotencyKey": "refund-intent-0037:attempt:1",
+      "intentId": "refund-intent-0037"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0040",
+      "idempotencyKey": "refund-intent-0038:attempt:1",
+      "intentId": "refund-intent-0038"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0041",
+      "idempotencyKey": "refund-intent-0039:attempt:1",
+      "intentId": "refund-intent-0039"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0042",
+      "idempotencyKey": "refund-intent-0040:attempt:1",
+      "intentId": "refund-intent-0040"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0043",
+      "idempotencyKey": "refund-intent-0041:attempt:1",
+      "intentId": "refund-intent-0041"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0044",
+      "idempotencyKey": "refund-intent-0042:attempt:1",
+      "intentId": "refund-intent-0042"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0045",
+      "idempotencyKey": "refund-intent-0043:attempt:1",
+      "intentId": "refund-intent-0043"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0046",
+      "idempotencyKey": "refund-intent-0044:attempt:1",
+      "intentId": "refund-intent-0044"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0047",
+      "idempotencyKey": "refund-intent-0045:attempt:1",
+      "intentId": "refund-intent-0045"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0048",
+      "idempotencyKey": "refund-intent-0046:attempt:1",
+      "intentId": "refund-intent-0046"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0049",
+      "idempotencyKey": "refund-intent-0047:attempt:1",
+      "intentId": "refund-intent-0047"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0050",
+      "idempotencyKey": "refund-intent-0048:attempt:1",
+      "intentId": "refund-intent-0048"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0051",
+      "idempotencyKey": "refund-intent-0048:attempt:2",
+      "intentId": "refund-intent-0048"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0052",
+      "idempotencyKey": "refund-intent-0049:attempt:1",
+      "intentId": "refund-intent-0049"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0053",
+      "idempotencyKey": "refund-intent-0050:attempt:1",
+      "intentId": "refund-intent-0050"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0054",
+      "idempotencyKey": "refund-intent-0051:attempt:1",
+      "intentId": "refund-intent-0051"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0055",
+      "idempotencyKey": "refund-intent-0051:attempt:2",
+      "intentId": "refund-intent-0051"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0056",
+      "idempotencyKey": "refund-intent-0052:attempt:1",
+      "intentId": "refund-intent-0052"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0057",
+      "idempotencyKey": "refund-intent-0053:attempt:1",
+      "intentId": "refund-intent-0053"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0058",
+      "idempotencyKey": "refund-intent-0054:attempt:1",
+      "intentId": "refund-intent-0054"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0059",
+      "idempotencyKey": "refund-intent-0055:attempt:1",
+      "intentId": "refund-intent-0055"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0060",
+      "idempotencyKey": "refund-intent-0056:attempt:1",
+      "intentId": "refund-intent-0056"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0061",
+      "idempotencyKey": "refund-intent-0057:attempt:1",
+      "intentId": "refund-intent-0057"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0062",
+      "idempotencyKey": "refund-intent-0058:attempt:1",
+      "intentId": "refund-intent-0058"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0063",
+      "idempotencyKey": "refund-intent-0058:attempt:2",
+      "intentId": "refund-intent-0058"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0064",
+      "idempotencyKey": "refund-intent-0059:attempt:1",
+      "intentId": "refund-intent-0059"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0065",
+      "idempotencyKey": "refund-intent-0060:attempt:1",
+      "intentId": "refund-intent-0060"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0066",
+      "idempotencyKey": "refund-intent-0061:attempt:1",
+      "intentId": "refund-intent-0061"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0067",
+      "idempotencyKey": "refund-intent-0062:attempt:1",
+      "intentId": "refund-intent-0062"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0068",
+      "idempotencyKey": "refund-intent-0063:attempt:1",
+      "intentId": "refund-intent-0063"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0069",
+      "idempotencyKey": "refund-intent-0063:attempt:2",
+      "intentId": "refund-intent-0063"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0070",
+      "idempotencyKey": "refund-intent-0064:attempt:1",
+      "intentId": "refund-intent-0064"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0071",
+      "idempotencyKey": "refund-intent-0064:attempt:2",
+      "intentId": "refund-intent-0064"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0072",
+      "idempotencyKey": "refund-intent-0065:attempt:1",
+      "intentId": "refund-intent-0065"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0073",
+      "idempotencyKey": "refund-intent-0066:attempt:1",
+      "intentId": "refund-intent-0066"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0074",
+      "idempotencyKey": "refund-intent-0067:attempt:1",
+      "intentId": "refund-intent-0067"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0075",
+      "idempotencyKey": "refund-intent-0068:attempt:1",
+      "intentId": "refund-intent-0068"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0076",
+      "idempotencyKey": "refund-intent-0069:attempt:1",
+      "intentId": "refund-intent-0069"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0077",
+      "idempotencyKey": "refund-intent-0070:attempt:1",
+      "intentId": "refund-intent-0070"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0078",
+      "idempotencyKey": "refund-intent-0071:attempt:1",
+      "intentId": "refund-intent-0071"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0079",
+      "idempotencyKey": "refund-intent-0071:attempt:2",
+      "intentId": "refund-intent-0071"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0080",
+      "idempotencyKey": "refund-intent-0072:attempt:1",
+      "intentId": "refund-intent-0072"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0081",
+      "idempotencyKey": "refund-intent-0073:attempt:1",
+      "intentId": "refund-intent-0073"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0082",
+      "idempotencyKey": "refund-intent-0074:attempt:1",
+      "intentId": "refund-intent-0074"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0083",
+      "idempotencyKey": "refund-intent-0075:attempt:1",
+      "intentId": "refund-intent-0075"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0084",
+      "idempotencyKey": "refund-intent-0076:attempt:1",
+      "intentId": "refund-intent-0076"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0085",
+      "idempotencyKey": "refund-intent-0077:attempt:1",
+      "intentId": "refund-intent-0077"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0086",
+      "idempotencyKey": "refund-intent-0078:attempt:1",
+      "intentId": "refund-intent-0078"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0087",
+      "idempotencyKey": "refund-intent-0079:attempt:1",
+      "intentId": "refund-intent-0079"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0088",
+      "idempotencyKey": "refund-intent-0079:attempt:2",
+      "intentId": "refund-intent-0079"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0089",
+      "idempotencyKey": "refund-intent-0080:attempt:1",
+      "intentId": "refund-intent-0080"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0090",
+      "idempotencyKey": "refund-intent-0081:attempt:1",
+      "intentId": "refund-intent-0081"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0091",
+      "idempotencyKey": "refund-intent-0082:attempt:1",
+      "intentId": "refund-intent-0082"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0092",
+      "idempotencyKey": "refund-intent-0083:attempt:1",
+      "intentId": "refund-intent-0083"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0093",
+      "idempotencyKey": "refund-intent-0084:attempt:1",
+      "intentId": "refund-intent-0084"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0094",
+      "idempotencyKey": "refund-intent-0084:attempt:2",
+      "intentId": "refund-intent-0084"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0095",
+      "idempotencyKey": "refund-intent-0085:attempt:1",
+      "intentId": "refund-intent-0085"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0096",
+      "idempotencyKey": "refund-intent-0086:attempt:1",
+      "intentId": "refund-intent-0086"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0097",
+      "idempotencyKey": "refund-intent-0087:attempt:1",
+      "intentId": "refund-intent-0087"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0098",
+      "idempotencyKey": "refund-intent-0088:attempt:1",
+      "intentId": "refund-intent-0088"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0099",
+      "idempotencyKey": "refund-intent-0089:attempt:1",
+      "intentId": "refund-intent-0089"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0100",
+      "idempotencyKey": "refund-intent-0090:attempt:1",
+      "intentId": "refund-intent-0090"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0101",
+      "idempotencyKey": "refund-intent-0091:attempt:1",
+      "intentId": "refund-intent-0091"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0102",
+      "idempotencyKey": "refund-intent-0092:attempt:1",
+      "intentId": "refund-intent-0092"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0103",
+      "idempotencyKey": "refund-intent-0093:attempt:1",
+      "intentId": "refund-intent-0093"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0104",
+      "idempotencyKey": "refund-intent-0094:attempt:1",
+      "intentId": "refund-intent-0094"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0105",
+      "idempotencyKey": "refund-intent-0095:attempt:1",
+      "intentId": "refund-intent-0095"
+    },
+    {
+      "amountJpy": 1500,
+      "effectId": "refund-effect-0106",
+      "idempotencyKey": "refund-intent-0096:attempt:1",
+      "intentId": "refund-intent-0096"
+    },
+    {
+      "amountJpy": 1600,
+      "effectId": "refund-effect-0107",
+      "idempotencyKey": "refund-intent-0097:attempt:1",
+      "intentId": "refund-intent-0097"
+    },
+    {
+      "amountJpy": 1700,
+      "effectId": "refund-effect-0108",
+      "idempotencyKey": "refund-intent-0098:attempt:1",
+      "intentId": "refund-intent-0098"
+    },
+    {
+      "amountJpy": 1800,
+      "effectId": "refund-effect-0109",
+      "idempotencyKey": "refund-intent-0099:attempt:1",
+      "intentId": "refund-intent-0099"
+    },
+    {
+      "amountJpy": 1900,
+      "effectId": "refund-effect-0110",
+      "idempotencyKey": "refund-intent-0100:attempt:1",
+      "intentId": "refund-intent-0100"
+    },
+    {
+      "amountJpy": 1000,
+      "effectId": "refund-effect-0111",
+      "idempotencyKey": "refund-intent-0101:attempt:1",
+      "intentId": "refund-intent-0101"
+    },
+    {
+      "amountJpy": 1100,
+      "effectId": "refund-effect-0112",
+      "idempotencyKey": "refund-intent-0102:attempt:1",
+      "intentId": "refund-intent-0102"
+    },
+    {
+      "amountJpy": 1200,
+      "effectId": "refund-effect-0113",
+      "idempotencyKey": "refund-intent-0103:attempt:1",
+      "intentId": "refund-intent-0103"
+    },
+    {
+      "amountJpy": 1300,
+      "effectId": "refund-effect-0114",
+      "idempotencyKey": "refund-intent-0104:attempt:1",
+      "intentId": "refund-intent-0104"
+    },
+    {
+      "amountJpy": 1400,
+      "effectId": "refund-effect-0115",
+      "idempotencyKey": "refund-intent-0105:attempt:1",
+      "intentId": "refund-intent-0105"
+    }
+  ],
+  "summary": {
+    "duplicateRefundCount": 10,
+    "externalEffectCount": 115,
+    "intentCount": 105,
+    "maxUnknownDurationSteps": 0,
+    "reconciledUnknownCount": 0,
+    "responseLostEffectCount": 10,
+    "unknownOutcomeCount": 0,
+    "unrecognizedExternalEffectCountAtCompletion": 10
+  },
+  "variant": "conventional_retry"
+}

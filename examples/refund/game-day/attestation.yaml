@@ -1,0 +1,136 @@
+apiVersion: delegation-resilience.org/v0alpha1
+kind: ExerciseAttestation
+metadata:
+  id: refund-response-loss-synthetic-run
+  version: 0.1.0-alpha.1
+evaluatedProfile:
+  uri: ../profile.yaml
+  digest: sha256:61c48216664421692999e8edb4d0cd85c64c84f6b95c80316c0dee8df81a8f33
+scenarioRef: refund-response-loss-after-commit
+issuer:
+  id: refund-game-day-runner
+  type: workload
+issuedAt: '2026-08-02T01:01:00Z'
+validUntil: '2026-11-01T00:00:00Z'
+exerciseMode: deterministic_simulation
+startedAt: '2026-08-02T00:00:00Z'
+completedAt: '2026-08-02T01:00:00Z'
+systemUnderTest:
+  environment: deterministic-in-memory-simulation
+  components:
+  - componentId: refund-game-day-runner
+    kind: comparison-runner
+    version: 0.1.0-alpha.1
+    artifact:
+      uri: ../../../game_days/refund/runner.py
+      digest: sha256:31b0f094a058d6193a2dcb102d07d3616a0e3dd22cbce8731b286177e3a85782
+  - componentId: fake-refund-provider
+    kind: authoritative-outcome-simulator
+    version: 0.1.0-alpha.1
+    artifact:
+      uri: ../../../game_days/refund/runner.py
+      digest: sha256:31b0f094a058d6193a2dcb102d07d3616a0e3dd22cbce8731b286177e3a85782
+actualConditions:
+  randomSeed: refund-response-loss-v0alpha1-seed-1
+  faultSchedule:
+  - faultId: response-loss-after-commit
+    target: refund-connector
+    startedAt: '2026-08-02T00:01:00Z'
+    completedAt: '2026-08-02T00:01:00Z'
+  workload:
+  - measurementId: workload-initial-backlog
+    metric: initial_backlog
+    value: 100
+    unit: requests
+  - measurementId: workload-arrival-rate
+    metric: arrival_rate
+    value: 5
+    unit: requests_per_hour
+  - measurementId: workload-total-intents
+    metric: total_intent_count
+    value: 105
+    unit: requests
+  - measurementId: workload-response-losses
+    metric: response_loss_count
+    value: 10
+    unit: attempts
+  sharedDependencies:
+  - refund-provider-status-api
+humanParticipation:
+  mode: none
+  participantCount: 0
+  roles: []
+  authorityVerified: false
+  operationalAccessVerified: false
+  observations:
+  - No human takeover capability was exercised.
+claimResults:
+- claimRef: refund-provider-outage
+  result: not_demonstrated
+  demonstratedCapabilities:
+  - external_reconciliation
+  measurementRefs:
+  - profile-aware-response-lost-effects
+  - profile-aware-duplicate-refunds
+  - profile-aware-reconciled-unknowns
+  - baseline-response-lost-effects
+  - baseline-duplicate-refunds
+  - baseline-unrecognized-effects-at-completion
+  evidenceRequirementRefs:
+  - refund-provider-outcome
+  notes: The synthetic run exercised external reconciliation only; it did not exercise
+    human takeover or 24-hour mission recovery.
+measurements:
+- measurementId: profile-aware-response-lost-effects
+  metric: response_lost_effect_count
+  value: 10
+  unit: count
+  method: injected response loss after authoritative provider commit
+- measurementId: profile-aware-duplicate-refunds
+  metric: duplicate_refund_count
+  value: 0
+  unit: count
+  method: authoritative fake-provider effect count by intent
+- measurementId: profile-aware-reconciled-unknowns
+  metric: reconciled_unknown_count
+  value: 10
+  unit: count
+  method: authoritative lookup after response loss
+- measurementId: baseline-response-lost-effects
+  metric: response_lost_effect_count
+  value: 10
+  unit: count
+  method: injected response loss after authoritative provider commit
+- measurementId: baseline-duplicate-refunds
+  metric: duplicate_refund_count
+  value: 10
+  unit: count
+  method: authoritative fake-provider effect count by intent
+- measurementId: baseline-unrecognized-effects-at-completion
+  metric: unrecognized_external_effect_count_at_completion
+  value: 10
+  unit: count
+  method: provider effects absent from the workflow recognized outcome set at completion
+evidence:
+- evidenceObservationId: profile-aware-provider-outcomes
+  evidenceRequirementRef: refund-provider-outcome
+  artifact:
+    uri: evidence/profile-aware-provider-outcomes.json
+    digest: sha256:5cd534745a550ff65264ebed88043b283784872a90f009bbd67012ac417ee5f8
+  observedAt: '2026-08-02T01:00:00Z'
+- evidenceObservationId: baseline-provider-outcomes
+  evidenceRequirementRef: refund-provider-outcome
+  artifact:
+    uri: evidence/baseline-provider-outcomes.json
+    digest: sha256:a57125e5ceddd2104ccaa24a3c6c243d9b64214449d3ca0efad9919bfda2f586
+  observedAt: '2026-08-02T01:00:00Z'
+evidenceGaps:
+- No qualified human participated.
+- The 15-minute handover and 24-hour mission recovery were not exercised.
+- The provider, policy service, identity provider, and evidence sink were simulated.
+- Only response loss after commit was injected.
+residualUncertainty:
+- A real provider may implement idempotency and outcome lookup differently.
+- The conventional baseline represents attempt-scoped idempotency, not every retry
+  implementation.
+- The simulation does not establish production workload or operator capacity.

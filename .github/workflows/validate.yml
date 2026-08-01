@@ -39,3 +39,9 @@ jobs:
         run: python tools/validate_profile.py examples/refund/profile.yaml --attestation tests/fixtures/valid/attestation-deterministic.yaml --as-of 2026-08-02T00:00:00Z
       - name: Run semantic negative tests
         run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Verify deterministic Refund Game Day artifacts
+        run: python -m game_days.refund.runner --verify
+      - name: Validate generated Refund Game Day attestation
+        run: |
+          check-jsonschema --schemafile profiles/transactional-action/schema/attestation.schema.json examples/refund/game-day/attestation.yaml
+          python tools/validate_profile.py examples/refund/profile.yaml --attestation examples/refund/game-day/attestation.yaml --as-of 2026-08-02T00:00:00Z

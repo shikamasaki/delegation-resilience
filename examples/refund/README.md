@@ -44,6 +44,8 @@ Queueへ移しただけではrecoveryとみなしません。[Machine-readable p
 
 [Machine-readable profile](profile.yaml)では、各scenarioに初期backlog、毎時arrival、fault継続時間、operator数と能力、shared dependency、response-loss件数、固定random seedを宣言します。未宣言のloadへ結果を一般化しません。
 
+最初のdeterministic comparisonは[Refund response-loss Game Day](../../game_days/refund/README.md)として実行できます。生成済みの[run report](game-day/run-report.json)と[synthetic Attestation](game-day/attestation.yaml)も同じ条件から再生成できます。
+
 ## Expected observations
 
 - 二重返金が発生しない。

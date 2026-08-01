@@ -102,6 +102,7 @@ Delegation Resilience Doctrine
 - [Roadmap](ROADMAP.md): 12か月の検証計画とspin-out条件
 - [ADR-0001](docs/decisions/0001-incubate-before-spinout.md): 思想を独立させ、製品分離を遅らせる理由
 - [Refund example](examples/refund/README.md): 最初の非coding reference scenario
+- [Refund response-loss Game Day](game_days/refund/README.md): response lossとretry baselineのdeterministic比較実験
 
 ## Status
 

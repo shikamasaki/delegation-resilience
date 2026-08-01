@@ -322,6 +322,9 @@ spec:
           - name: arrival_rate
             value: 5
             unit: requests_per_hour
+          - name: simulation_duration
+            value: 1
+            unit: hours
           - name: response_loss_count
             value: 10
             unit: attempts

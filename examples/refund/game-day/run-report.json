@@ -1,0 +1,82 @@
+{
+  "claimResult": "not_demonstrated",
+  "conditions": {
+    "arrivalRatePerHour": 5,
+    "initialBacklog": 100,
+    "responseLossCount": 10,
+    "simulationDurationHours": 1,
+    "totalIntentCount": 105
+  },
+  "demonstratedCapabilities": [
+    "external_reconciliation"
+  ],
+  "experiment": "refund-response-loss-game-day/v0alpha1",
+  "faultedIntentIds": [
+    "refund-intent-0006",
+    "refund-intent-0014",
+    "refund-intent-0048",
+    "refund-intent-0051",
+    "refund-intent-0058",
+    "refund-intent-0063",
+    "refund-intent-0064",
+    "refund-intent-0071",
+    "refund-intent-0079",
+    "refund-intent-0084"
+  ],
+  "materialGaps": [
+    {
+      "detected": true,
+      "gapId": "attempt-scoped-idempotency-after-ambiguous-commit",
+      "interpretation": "Retrying an ambiguous commit with a new attempt-scoped key created externally visible duplicate refunds.",
+      "measurement": 10,
+      "unit": "duplicate_external_effects"
+    },
+    {
+      "detected": true,
+      "gapId": "application-log-external-outcome-divergence",
+      "interpretation": "The conventional workflow acknowledged the retry while the first committed effects remained absent from its internal outcome view.",
+      "measurement": 10,
+      "unit": "unrecognized_external_effects"
+    }
+  ],
+  "randomSeed": "refund-response-loss-v0alpha1-seed-1",
+  "scenarioRef": "refund-response-loss-after-commit",
+  "variants": [
+    {
+      "contract": {
+        "idempotencyKeyScope": "logical_intent",
+        "retryPolicy": "reconcile_before_retry",
+        "timeoutSemantics": "OUTCOME_UNKNOWN"
+      },
+      "summary": {
+        "duplicateRefundCount": 0,
+        "externalEffectCount": 105,
+        "intentCount": 105,
+        "maxUnknownDurationSteps": 1,
+        "reconciledUnknownCount": 10,
+        "responseLossCount": 10,
+        "unknownOutcomeCount": 10,
+        "unrecognizedExternalEffectCount": 0
+      },
+      "variant": "profile_aware"
+    },
+    {
+      "contract": {
+        "idempotencyKeyScope": "execution_attempt",
+        "retryPolicy": "retry_on_timeout_without_reconciliation",
+        "timeoutSemantics": "FAILED"
+      },
+      "summary": {
+        "duplicateRefundCount": 10,
+        "externalEffectCount": 115,
+        "intentCount": 105,
+        "maxUnknownDurationSteps": 0,
+        "reconciledUnknownCount": 0,
+        "responseLossCount": 10,
+        "unknownOutcomeCount": 0,
+        "unrecognizedExternalEffectCount": 10
+      },
+      "variant": "conventional_retry"
+    }
+  ]
+}

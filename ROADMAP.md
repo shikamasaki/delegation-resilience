@@ -48,6 +48,7 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 ### Build
 
+- [x] Refund response-loss deterministic comparison prototype
 - [ ] v0alpha validatorのdependency・digest・invalidation lint rules
 - [ ] local deterministic exercise runner
 - [ ] fake model/tool/approver/evidence sink

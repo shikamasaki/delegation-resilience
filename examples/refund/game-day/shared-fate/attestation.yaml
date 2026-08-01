@@ -1,0 +1,180 @@
+apiVersion: delegation-resilience.org/v0alpha1
+kind: ExerciseAttestation
+metadata:
+  id: refund-shared-fate-synthetic-run
+  version: 0.1.0-alpha.1
+evaluatedProfile:
+  uri: ../../profile.yaml
+  digest: sha256:beab8cfcaf7f20dfacae1fae070f38aa3e8259f9047c72d6f41596af128bddbf
+scenarioRef: refund-shared-idp-outage
+issuer:
+  id: refund-shared-fate-runner
+  type: workload
+issuedAt: '2026-08-02T06:03:00Z'
+validUntil: '2026-11-01T00:00:00Z'
+exerciseMode: deterministic_simulation
+startedAt: '2026-08-02T02:00:00Z'
+completedAt: '2026-08-02T06:02:00Z'
+systemUnderTest:
+  environment: deterministic-dependency-failure-simulation
+  components:
+  - componentId: refund-shared-fate-runner
+    kind: dependency-failure-runner
+    version: 0.1.0-alpha.1
+    artifact:
+      uri: ../../../../game_days/refund/shared_fate.py
+      digest: sha256:2f5c4d4ae0723e3942e7fb0a80aad77a9c2b818ede37ed2e8bc651d83bd48a56
+  - componentId: refund-digest-utility
+    kind: canonical-and-byte-digest-implementation
+    version: 0.1.0-alpha.1
+    artifact:
+      uri: ../../../../game_days/refund/runner.py
+      digest: sha256:55861164c7b0a6f457df7cda63593bda736987bcb8fbd2feb89592c138c2a8bb
+actualConditions:
+  randomSeed: refund-shared-idp-v0alpha1-seed-1
+  faultSchedule:
+  - faultId: shared-control-plane-idp-outage
+    target: shared-control-plane-idp
+    startedAt: '2026-08-02T02:01:00Z'
+    completedAt: '2026-08-02T06:01:00Z'
+  workload:
+  - measurementId: workload-initial-backlog
+    metric: initial_backlog
+    value: 100
+    unit: requests
+  - measurementId: workload-arrival-rate
+    metric: arrival_rate
+    value: 5
+    unit: requests_per_hour
+  - measurementId: workload-fault-duration
+    metric: fault_duration
+    value: 4
+    unit: hours
+  sharedDependencies:
+  - shared-control-plane-idp
+humanParticipation:
+  mode: none
+  participantCount: 0
+  roles: []
+  participants: []
+  authorityVerified: false
+  authorityEvidence: []
+  operationalAccessVerified: false
+  operationalAccessEvidence: []
+  observations:
+  - The operator channel was modeled as unavailable; no human takeover was exercised.
+claimResults:
+- claimRef: refund-provider-outage
+  result: not_demonstrated
+  demonstratedCapabilities: []
+  capabilityEvidence: []
+  measurementRefs:
+  - shared-fate-detected
+  - independent-fallback-count
+  - authorization-available
+  - execution-available
+  - external-outcome-probe-available
+  - operator-channel-available
+  - financial-commits-during-fault
+  - unauthorized-commits-during-fault
+  - commit-guard-halted-on-missing-authority
+  - pending-backlog-at-fault-end
+  - backlog-tolerance-exceeded
+  evidenceRequirementRefs:
+  - authorization-decision
+  - refund-provider-outcome
+  - human-handover
+  notes: 'No recovery capability was demonstrated: the shared outage removed every
+    execution path, so zero commits do not establish an active containment control.
+    The fallback, policy, provider outcome probe, and operator channel shared the
+    failed identity boundary, so recovery and takeover remain not demonstrated. The
+    observed backlog exceeded the declared mission tolerance; containment does not
+    imply mission adequacy.'
+measurements:
+- measurementId: shared-fate-detected
+  metric: shared_fate_detected
+  value: true
+  unit: boolean
+  method: transitive dependency propagation from the injected fault
+- measurementId: independent-fallback-count
+  metric: independent_fallback_count
+  value: 0
+  unit: components
+  method: fallback components reachable outside the failed dependency closure
+- measurementId: authorization-available
+  metric: authorization_available_during_fault
+  value: false
+  unit: boolean
+- measurementId: execution-available
+  metric: execution_available_during_fault
+  value: false
+  unit: boolean
+- measurementId: external-outcome-probe-available
+  metric: external_outcome_probe_available_during_fault
+  value: false
+  unit: boolean
+- measurementId: operator-channel-available
+  metric: operator_channel_available_during_fault
+  value: false
+  unit: boolean
+- measurementId: financial-commits-during-fault
+  metric: financial_commit_count_during_fault
+  value: 0
+  unit: commits
+  method: deterministic authorization guard event count
+- measurementId: unauthorized-commits-during-fault
+  metric: unauthorized_financial_commit_count_during_fault
+  value: 0
+  unit: commits
+  method: deterministic authorization guard event count
+- measurementId: commit-guard-halted-on-missing-authority
+  metric: commit_guard_halted_on_missing_authority
+  value: false
+  unit: boolean
+  method: observed only when an execution path attempted commit while authorization
+    was unavailable
+- measurementId: pending-backlog-at-fault-end
+  metric: pending_backlog_at_fault_end
+  value: 120
+  unit: requests
+  method: initial backlog plus declared arrivals while all execution paths are unavailable
+- measurementId: backlog-tolerance-exceeded
+  metric: pending_backlog_tolerance_exceeded
+  value: true
+  unit: boolean
+  method: pending backlog compared with the declared mission tolerance
+evidence:
+- evidenceObservationId: shared-fate-authorization-observation
+  evidenceRequirementRef: authorization-decision
+  finding: unavailable
+  artifact:
+    uri: evidence/shared-fate-observations.json
+    digest: sha256:7c0f99d4f0d1666739c082061774b1be3872b699ceac808d749e7a1f4f91aadb
+  observedAt: '2026-08-02T06:02:00Z'
+- evidenceObservationId: shared-fate-provider-outcome-observation
+  evidenceRequirementRef: refund-provider-outcome
+  finding: unavailable
+  artifact:
+    uri: evidence/shared-fate-observations.json
+    digest: sha256:7c0f99d4f0d1666739c082061774b1be3872b699ceac808d749e7a1f4f91aadb
+  observedAt: '2026-08-02T06:02:00Z'
+- evidenceObservationId: shared-fate-human-handover-observation
+  evidenceRequirementRef: human-handover
+  finding: unavailable
+  artifact:
+    uri: evidence/shared-fate-observations.json
+    digest: sha256:7c0f99d4f0d1666739c082061774b1be3872b699ceac808d749e7a1f4f91aadb
+  observedAt: '2026-08-02T06:02:00Z'
+evidenceGaps:
+- No real identity provider, policy service, provider status API, or operator channel
+  was exercised.
+- No qualified human participated and no sandbox authority or access was verified.
+- Mission recovery after the four-hour fault was not exercised.
+- The dependency topology is declared input and has not been discovered from production
+  telemetry.
+residualUncertainty:
+- A production dependency graph may include additional direct or transitive shared
+  dependencies.
+- A separately authenticated break-glass operator path may alter the result once demonstrated.
+- The simulation does not establish customer-specific harm from the observed refund
+  delay and backlog breach.

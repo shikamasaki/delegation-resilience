@@ -1,0 +1,177 @@
+{
+  "apiVersion": "delegation-resilience.org/v0alpha1",
+  "assertions": [
+    {
+      "evidenceRequirementRef": "authorization-decision",
+      "finding": "unavailable"
+    },
+    {
+      "evidenceRequirementRef": "refund-provider-outcome",
+      "finding": "unavailable"
+    },
+    {
+      "evidenceRequirementRef": "human-handover",
+      "finding": "unavailable"
+    }
+  ],
+  "assurance": "digest_bound",
+  "environmentRef": "deterministic-dependency-failure-simulation",
+  "issuer": {
+    "id": "refund-shared-fate-runner",
+    "type": "workload"
+  },
+  "kind": "ExerciseEvidence",
+  "observedAt": "2026-08-02T06:02:00Z",
+  "payload": {
+    "claimResult": "not_demonstrated",
+    "conditions": {
+      "arrivalRatePerHour": 5,
+      "authorizationGuardMode": "fail_closed",
+      "faultDurationHours": 4,
+      "initialBacklog": 100,
+      "operatorCapacityPerPersonHour": 20,
+      "operatorCountDeclared": 2
+    },
+    "demonstratedCapabilities": [],
+    "dependencyAnalysis": {
+      "affectedCriticalRoles": [
+        "authorization",
+        "external_outcome",
+        "fallback_execution",
+        "human_handover",
+        "primary_execution"
+      ],
+      "components": {
+        "customer-operations-channel": {
+          "availableDuringFault": false,
+          "dependencyRefs": [
+            "shared-control-plane-idp",
+            "refund-authorization-policy",
+            "refund-provider-status-api"
+          ],
+          "role": "human_handover"
+        },
+        "fallback-refund-worker": {
+          "availableDuringFault": false,
+          "dependencyRefs": [
+            "shared-control-plane-idp",
+            "refund-authorization-policy",
+            "refund-provider-status-api"
+          ],
+          "role": "fallback_execution"
+        },
+        "primary-refund-worker": {
+          "availableDuringFault": false,
+          "dependencyRefs": [
+            "shared-control-plane-idp",
+            "refund-authorization-policy",
+            "refund-provider-status-api"
+          ],
+          "role": "primary_execution"
+        },
+        "refund-authorization-policy": {
+          "availableDuringFault": false,
+          "dependencyRefs": [
+            "shared-control-plane-idp"
+          ],
+          "role": "authorization"
+        },
+        "refund-provider-status-api": {
+          "availableDuringFault": false,
+          "dependencyRefs": [
+            "shared-control-plane-idp"
+          ],
+          "role": "external_outcome"
+        },
+        "shared-control-plane-idp": {
+          "availableDuringFault": false,
+          "dependencyRefs": [],
+          "role": "other"
+        }
+      },
+      "fallbackDefined": true,
+      "fallbackIndependentByTopology": false,
+      "independentFallbackCount": 0,
+      "sharedFateDetected": true,
+      "sharedFateGroups": [
+        {
+          "affectedCriticalRoles": [
+            "authorization",
+            "external_outcome",
+            "fallback_execution",
+            "human_handover",
+            "primary_execution"
+          ],
+          "faultTarget": "shared-control-plane-idp"
+        }
+      ],
+      "unavailableComponents": [
+        "customer-operations-channel",
+        "fallback-refund-worker",
+        "primary-refund-worker",
+        "refund-authorization-policy",
+        "refund-provider-status-api",
+        "shared-control-plane-idp"
+      ]
+    },
+    "experiment": "refund-shared-fate-game-day/v0alpha1",
+    "faultTargets": [
+      "shared-control-plane-idp"
+    ],
+    "materialGaps": [
+      {
+        "detected": true,
+        "gapId": "fallback-shares-control-plane-idp",
+        "interpretation": "The declared fallback exists but shares the failed identity boundary with primary execution, authorization, outcome lookup, and human handover."
+      },
+      {
+        "detected": true,
+        "gapId": "recovery-evidence-and-handover-share-failure-boundary",
+        "interpretation": "Neither authoritative reconciliation nor the operator handover path remained reachable during the injected fault."
+      }
+    ],
+    "missingRequiredCapabilities": [
+      "containment",
+      "external_reconciliation",
+      "handover",
+      "human_takeover",
+      "mission_recovery",
+      "revalidation"
+    ],
+    "observations": {
+      "authorizationAvailable": false,
+      "backlogToleranceExceeded": true,
+      "commitGuardHaltedOnMissingAuthority": false,
+      "controlFlowEvents": [
+        {
+          "event": "FALLBACK_TOPOLOGY_EVALUATED",
+          "independentByTopology": false
+        },
+        {
+          "event": "AUTHORIZATION_UNAVAILABLE"
+        },
+        {
+          "event": "NO_EXECUTION_PATH_AVAILABLE"
+        },
+        {
+          "available": false,
+          "event": "EXTERNAL_RECONCILIATION_EVALUATED"
+        },
+        {
+          "available": false,
+          "event": "HUMAN_HANDOVER_EVALUATED"
+        }
+      ],
+      "executionAvailable": false,
+      "externalOutcomeProbeAvailable": false,
+      "financialCommitsDuringFault": 0,
+      "operatorChannelAvailable": false,
+      "pendingBacklogAtFaultEnd": 120,
+      "unauthorizedCommits": 0
+    },
+    "randomSeed": "refund-shared-idp-v0alpha1-seed-1",
+    "scenarioRef": "refund-shared-idp-outage"
+  },
+  "scenarioRef": "refund-shared-idp-outage",
+  "validUntil": "2026-11-01T00:00:00Z"
+}

@@ -46,6 +46,10 @@ Queueへ移しただけではrecoveryとみなしません。[Machine-readable p
 
 最初のdeterministic comparisonは[Refund response-loss Game Day](../../game_days/refund/README.md)として実行できます。生成済みの[run report](game-day/run-report.json)と[synthetic Attestation](game-day/attestation.yaml)も同じ条件から再生成できます。
 
+Shared-fate exerciseも同じprofileから実行でき、[run report](game-day/shared-fate/run-report.json)と[synthetic Attestation](game-day/shared-fate/attestation.yaml)を生成します。これは宣言された依存トポロジーのdeterministic simulationであり、実在するIdP、policy、provider API、operator channelを試験した証拠ではありません。
+
+Facilitated drillは[runbook](../../game_days/refund/HUMAN_DRILL.md)と[fail-closed preflight](game-day/human-drill/preflight-report.json)で準備します。現在のfixtureは意図的に`ready: false`であり、実地演習済みとは扱いません。
+
 ## Expected observations
 
 - 二重返金が発生しない。

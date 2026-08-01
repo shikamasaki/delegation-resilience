@@ -14,7 +14,6 @@ from typing import Any
 import rfc8785
 import yaml
 
-
 SCENARIO_ID = "refund-response-loss-after-commit"
 STARTED_AT = "2026-08-02T00:00:00Z"
 FAULT_AT = "2026-08-02T00:01:00Z"
@@ -83,8 +82,7 @@ def _scenario(profile: dict[str, Any], scenario_id: str) -> dict[str, Any]:
 
 def _parameters(scenario: dict[str, Any]) -> dict[str, Any]:
     return {
-        item["name"]: item["value"]
-        for item in scenario["executionPlan"]["parameters"]
+        item["name"]: item["value"] for item in scenario["executionPlan"]["parameters"]
     }
 
 
@@ -149,9 +147,7 @@ def run_profile_aware(
                 }
             )
         except ResponseLost:
-            events.append(
-                {"intentId": intent.intent_id, "event": "OUTCOME_UNKNOWN"}
-            )
+            events.append({"intentId": intent.intent_id, "event": "OUTCOME_UNKNOWN"})
             observed = provider.lookup_by_intent(intent.intent_id)
             if len(observed) != 1:
                 raise AssertionError("authoritative reconciliation was not singular")
@@ -312,8 +308,35 @@ def run_experiment(profile: dict[str, Any]) -> dict[str, Any]:
 
 
 def _json_bytes(value: Any) -> bytes:
-    return (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode(
-        "utf-8"
+    return (
+        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    ).encode("utf-8")
+
+
+def exercise_evidence_bytes(
+    payload: Any,
+    *,
+    scenario_ref: str,
+    environment_ref: str,
+    issuer_id: str,
+    observed_at: str,
+    valid_until: str,
+    assertions: list[dict[str, str]],
+) -> bytes:
+    """Wrap runner output in a typed envelope bound to its asserted semantics."""
+    return _json_bytes(
+        {
+            "apiVersion": "delegation-resilience.org/v0alpha1",
+            "kind": "ExerciseEvidence",
+            "scenarioRef": scenario_ref,
+            "environmentRef": environment_ref,
+            "issuer": {"id": issuer_id, "type": "workload"},
+            "observedAt": observed_at,
+            "validUntil": valid_until,
+            "assurance": "digest_bound",
+            "assertions": assertions,
+            "payload": payload,
+        }
     )
 
 
@@ -321,8 +344,30 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
     experiment = run_experiment(profile)
     variants = {item["variant"]: item for item in experiment["variants"]}
     runner_source = pathlib.Path(__file__).read_bytes()
-    profile_evidence = _json_bytes(variants["profile_aware"])
-    baseline_evidence = _json_bytes(variants["conventional_retry"])
+    evidence_assertions = [
+        {
+            "evidenceRequirementRef": "refund-provider-outcome",
+            "finding": "satisfied",
+        }
+    ]
+    profile_evidence = exercise_evidence_bytes(
+        variants["profile_aware"],
+        scenario_ref=SCENARIO_ID,
+        environment_ref="deterministic-in-memory-simulation",
+        issuer_id="refund-game-day-runner",
+        observed_at=COMPLETED_AT,
+        valid_until=VALID_UNTIL,
+        assertions=evidence_assertions,
+    )
+    baseline_evidence = exercise_evidence_bytes(
+        variants["conventional_retry"],
+        scenario_ref=SCENARIO_ID,
+        environment_ref="deterministic-in-memory-simulation",
+        issuer_id="refund-game-day-runner",
+        observed_at=COMPLETED_AT,
+        valid_until=VALID_UNTIL,
+        assertions=evidence_assertions,
+    )
 
     profile_summary = variants["profile_aware"]["summary"]
     baseline_summary = variants["conventional_retry"]["summary"]
@@ -420,8 +465,11 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
             "mode": "none",
             "participantCount": 0,
             "roles": [],
+            "participants": [],
             "authorityVerified": False,
+            "authorityEvidence": [],
             "operationalAccessVerified": False,
+            "operationalAccessEvidence": [],
             "observations": ["No human takeover capability was exercised."],
         },
         "claimResults": [
@@ -429,6 +477,17 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
                 "claimRef": "refund-provider-outage",
                 "result": "not_demonstrated",
                 "demonstratedCapabilities": ["external_reconciliation"],
+                "capabilityEvidence": [
+                    {
+                        "capability": "external_reconciliation",
+                        "measurementRefs": [
+                            "profile-aware-response-lost-effects",
+                            "profile-aware-duplicate-refunds",
+                            "profile-aware-reconciled-unknowns",
+                        ],
+                        "evidenceRequirementRefs": ["refund-provider-outcome"],
+                    }
+                ],
                 "measurementRefs": [
                     "profile-aware-response-lost-effects",
                     "profile-aware-duplicate-refunds",
@@ -487,13 +546,17 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
                     "unrecognizedExternalEffectCountAtCompletion"
                 ],
                 "unit": "count",
-                "method": "provider effects absent from the workflow recognized outcome set at completion",
+                "method": (
+                    "provider effects absent from the workflow recognized outcome "
+                    "set at completion"
+                ),
             },
         ],
         "evidence": [
             {
                 "evidenceObservationId": "profile-aware-provider-outcomes",
                 "evidenceRequirementRef": "refund-provider-outcome",
+                "finding": "satisfied",
                 "artifact": {
                     "uri": "evidence/profile-aware-provider-outcomes.json",
                     "digest": byte_digest(profile_evidence),
@@ -503,6 +566,7 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
             {
                 "evidenceObservationId": "baseline-provider-outcomes",
                 "evidenceRequirementRef": "refund-provider-outcome",
+                "finding": "satisfied",
                 "artifact": {
                     "uri": "evidence/baseline-provider-outcomes.json",
                     "digest": byte_digest(baseline_evidence),
@@ -513,13 +577,16 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
         "evidenceGaps": [
             "No qualified human participated.",
             "The 15-minute handover and 24-hour mission recovery were not exercised.",
-            "The provider, policy service, identity provider, and evidence sink were simulated.",
+            "The provider, policy service, identity provider, and evidence sink "
+            "were simulated.",
             "Only response loss after commit was injected.",
         ],
         "residualUncertainty": [
             "A real provider may implement idempotency and outcome lookup differently.",
-            "The conventional baseline represents attempt-scoped idempotency, not every retry implementation.",
-            "The simulation does not establish production workload or operator capacity.",
+            "The conventional baseline represents attempt-scoped idempotency, not "
+            "every retry implementation.",
+            "The simulation does not establish production workload or operator "
+            "capacity.",
         ],
     }
 
@@ -540,7 +607,9 @@ def write_artifacts(output_dir: pathlib.Path, artifacts: dict[str, bytes]) -> No
         target.write_bytes(content)
 
 
-def verify_artifacts(output_dir: pathlib.Path, artifacts: dict[str, bytes]) -> list[str]:
+def verify_artifacts(
+    output_dir: pathlib.Path, artifacts: dict[str, bytes]
+) -> list[str]:
     errors: list[str] = []
     for relative, expected in artifacts.items():
         target = output_dir / relative

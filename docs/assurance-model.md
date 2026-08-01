@@ -49,6 +49,15 @@ Evidence eventは、少なくとも次を区別します。
 - external reconciliationは外部結果との一致を確認する。
 - いずれも、目的の妥当性やsource自身の正しさを単独では保証しない。
 
+Evidence observationは、内容がrequirementを支持するかも別軸で表します。
+
+- `satisfied`: この観測は宣言されたrequirementを満たす
+- `contradicted`: requirementと矛盾する結果を観測した
+- `unavailable`: 必要なsourceまたは経路を観測できなかった
+- `inconclusive`: 観測は存在するが結論を導けない
+
+`unavailable`や`contradicted`も重要なnegative evidenceですが、`demonstrated`を支持するpositive evidenceには数えません。
+
 ## Assurance mechanisms
 
 一つのclaimは、次の複数mechanismで同時に支えられます。
@@ -72,16 +81,20 @@ Exerciseの結果は、次の形式で表現します。
 
 Attestationは少なくともexercise mode、開始・終了時刻、system under testとversion、実際のfault scheduleとload、shared dependencies、human participation、structured measurements、evidence gapを保持します。
 
-同一要件に対する複数のevidence observationは別々のobservation IDを持ちます。同じmeasurement、fault、component、claim resultもIDまたはclaim参照によって一意にし、矛盾する値を一つのAttestation内で併記しません。
+同一要件に対する複数のevidence observationは別々のobservation IDを持ちます。同じmeasurement、fault、component、claim resultもIDまたはclaim参照によって一意にします。同一要件にadverse observationが一つでも未解決で残る場合、`satisfied` observationが併存していてもcapabilityやclaimを`demonstrated`へ昇格しません。
 
 証拠強度には上限があります。
 
-- deterministic simulationはtechnical state transitionを検証できるが、実在する人間のtakeover capabilityを実証できない。
+- deterministic simulationはtechnical state transitionを部分能力として検証できるが、RecoveryClaim全体を`demonstrated`にできない。
 - tabletopはroleやdecision pathを調べられるが、RecoveryClaim全体や実権限、操作access、処理能力を`demonstrated`にできない。
 - sandboxはproduction-equivalentな権限・依存・loadとの差を残存不確実性として記録する。
 - live drillとproduction-like exerciseも、観測範囲外へ結果を一般化しない。
 
 `result: demonstrated`にはRecoveryClaimの`requiredCapabilities`をすべて満たす測定とevidenceを必要とします。部分的な能力だけを確認した場合、確認した能力は記録してもclaim全体は`not_demonstrated`です。
+
+部分能力は`capabilityEvidence`によって、能力ごとにmeasurementとevidence requirementへ束縛します。v0alpha1のdeterministic simulationでは、typed envelopeとdigestだけでなく、validatorが明示的に知るrunnerを同じprofileから再実行して得たartifactとのbyte-for-byte一致を、技術的部分能力の追加条件とします。自己申告のissuer、finding、digestだけでは能力を昇格できません。
+
+`handover`または`human_takeover`を実証する場合、集約booleansだけでは足りません。Attestationはparticipant ID、role、simulatedか、qualification artifact、participantごとのauthority artifactとoperational-access artifactを保持します。宣言人数とparticipant listが一致し、scenarioで要求された人数以上の実在・qualified participantが揃わなければ実証扱いにしません。さらに、digestだけではissuerを認証できないため、v0alpha1 validatorは署名とtrust storeによるissuer検証が実装されるまで人間能力の実証をfail closedで拒否します。
 
 最低限のscenario familyは次です。
 

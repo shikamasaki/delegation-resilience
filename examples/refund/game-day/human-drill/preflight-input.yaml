@@ -1,0 +1,20 @@
+apiVersion: delegation-resilience.org/v0alpha1
+kind: HumanDrillPreflight
+scenarioRef: refund-facilitated-human-takeover
+sandboxEnvironmentId: UNPROVISIONED
+facilitatorId: ""
+participants: []
+authorityVerifications: []
+operationalAccessVerifications: []
+operatorChannelIndependenceEvidence: []
+participantSafeguardEvidence: []
+controls:
+  faultInjectionApproved: false
+  providerSandboxReady: false
+  evidenceSinkReady: false
+  handoverTimerReady: false
+  missionClockReady: false
+  abortAuthorityAssigned: false
+  participantBriefingAndConsentRecorded: false
+  operatorAbortRightsConfirmed: false
+  fatigueAndShiftPlanReady: false

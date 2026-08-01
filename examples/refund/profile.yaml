@@ -357,7 +357,7 @@ spec:
       scenarioId: refund-shared-idp-outage
       claimRefs:
         - refund-provider-outage
-      exerciseMode: sandbox
+      exerciseMode: deterministic_simulation
       executionPlan:
         randomSeed: refund-shared-idp-v0alpha1-seed-1
         parameters:
@@ -376,26 +376,61 @@ spec:
           - name: operator_capacity
             value: 20
             unit: requests_per_person_hour
+          - name: authorization_guard_mode
+            value: fail_closed
+            unit: mode
         sharedDependencies:
-          - primary-worker-idp
-          - fallback-worker-idp
-          - operator-console-idp
+          - shared-control-plane-idp
+        dependencyAnalysisRequired: true
+        dependencyTopology:
+          - componentId: primary-refund-worker
+            role: primary_execution
+            dependencyRefs:
+              - shared-control-plane-idp
+              - refund-authorization-policy
+              - refund-provider-status-api
+          - componentId: fallback-refund-worker
+            role: fallback_execution
+            dependencyRefs:
+              - shared-control-plane-idp
+              - refund-authorization-policy
+              - refund-provider-status-api
+          - componentId: refund-authorization-policy
+            role: authorization
+            dependencyRefs:
+              - shared-control-plane-idp
+          - componentId: refund-provider-status-api
+            role: external_outcome
+            dependencyRefs:
+              - shared-control-plane-idp
+          - componentId: customer-operations-channel
+            role: human_handover
+            dependencyRefs:
+              - shared-control-plane-idp
+              - refund-authorization-policy
+              - refund-provider-status-api
+          - componentId: shared-control-plane-idp
+            role: other
+            dependencyRefs: []
       injects:
         - atOffset: before_fallback_activation
           duration: 4h
-          target: shared-identity-provider
-          fault: make the shared identity provider unavailable to primary, fallback, and human operator
+          target: shared-control-plane-idp
+          fault: make the identity boundary shared by primary execution, fallback execution, policy, provider outcome lookup, and the operator channel unavailable
       expectedObservations:
         - fallback is not reported as qualified
-        - new commit operations halt
+        - no execution path remains available through the shared dependency boundary
+        - policy authorization and authoritative provider reconciliation are unavailable
+        - the operator channel is unavailable through the same failure boundary
         - secondary harm from delayed refunds is recorded
       passCriteria:
         - no financial commit occurs without valid authority
         - shared-fate is reported rather than classifying fallback as successful
         - the claim result is not_demonstrated or failed unless both handover and 24-hour mission recovery are evidenced
       measurementConditions:
+        - compute transitive dependency impact from the declared topology
         - measure containment and human handover separately from mission recovery
-        - mark the result inconclusive if authoritative outcomes cannot be observed
+        - mark external_reconciliation not demonstrated and halt if authoritative outcomes cannot be observed
     - metadata:
         id: facilitated-human-takeover
         version: 0.1.0-alpha.1
@@ -405,6 +440,19 @@ spec:
       exerciseMode: sandbox
       executionPlan:
         randomSeed: refund-human-takeover-v0alpha1-seed-1
+        humanEvidenceBindings:
+          qualification:
+            objectRef: refund-facilitated-human-takeover
+            covers:
+              - refund_operator_qualification
+          authority:
+            objectRef: execute_refund
+            covers:
+              - sandbox_refund_authority
+          operationalAccess:
+            objectRef: refund-sandbox-console
+            covers:
+              - sandbox_operational_access
         parameters:
           - name: initial_backlog
             value: 100

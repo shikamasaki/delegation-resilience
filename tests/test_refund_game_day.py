@@ -16,7 +16,6 @@ from game_days.refund.runner import (
 )
 from tools.validate_profile import validate_attestation
 
-
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
@@ -42,9 +41,7 @@ class RefundGameDayTest(unittest.TestCase):
         self.assertEqual(
             0, profile_aware["unrecognizedExternalEffectCountAtCompletion"]
         )
-        self.assertEqual(
-            10, baseline["unrecognizedExternalEffectCountAtCompletion"]
-        )
+        self.assertEqual(10, baseline["unrecognizedExternalEffectCountAtCompletion"])
         self.assertTrue(all(gap["detected"] for gap in result["materialGaps"]))
 
     def test_fault_selection_and_artifacts_are_reproducible(self):
@@ -93,6 +90,10 @@ class RefundGameDayTest(unittest.TestCase):
             ["external_reconciliation"], result["demonstratedCapabilities"]
         )
         self.assertEqual(
+            ["external_reconciliation"],
+            [item["capability"] for item in result["capabilityEvidence"]],
+        )
+        self.assertEqual(
             canonical_digest(self.profile),
             attestation["evaluatedProfile"]["digest"],
         )
@@ -112,16 +113,22 @@ class RefundGameDayTest(unittest.TestCase):
             validate_attestation(
                 self.profile,
                 attestation,
-                dt.datetime(2026, 8, 2, tzinfo=dt.timezone.utc),
+                dt.datetime(2026, 8, 3, tzinfo=dt.timezone.utc),
+                artifact_base=ROOT / "examples" / "refund" / "game-day",
+                artifact_root=ROOT,
             ),
         )
 
     def test_baseline_contract_is_explicit(self):
         result = run_experiment(self.profile)
         baseline = next(
-            item for item in result["variants"] if item["variant"] == "conventional_retry"
+            item
+            for item in result["variants"]
+            if item["variant"] == "conventional_retry"
         )
-        self.assertEqual("execution_attempt", baseline["contract"]["idempotencyKeyScope"])
+        self.assertEqual(
+            "execution_attempt", baseline["contract"]["idempotencyKeyScope"]
+        )
         self.assertEqual(
             "retry_on_timeout_without_reconciliation",
             baseline["contract"]["retryPolicy"],

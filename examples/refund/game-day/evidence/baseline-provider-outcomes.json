@@ -784,9 +784,9 @@
     "intentCount": 105,
     "maxUnknownDurationSteps": 0,
     "reconciledUnknownCount": 0,
-    "responseLossCount": 10,
+    "responseLostEffectCount": 10,
     "unknownOutcomeCount": 0,
-    "unrecognizedExternalEffectCount": 10
+    "unrecognizedExternalEffectCountAtCompletion": 10
   },
   "variant": "conventional_retry"
 }

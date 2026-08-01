@@ -33,10 +33,10 @@
     },
     {
       "detected": true,
-      "gapId": "application-log-external-outcome-divergence",
-      "interpretation": "The conventional workflow acknowledged the retry while the first committed effects remained absent from its internal outcome view.",
+      "gapId": "workflow-recognition-external-outcome-divergence",
+      "interpretation": "At workflow completion, the conventional variant recognized the retry effects while the first committed effects remained outside its recognized outcome set.",
       "measurement": 10,
-      "unit": "unrecognized_external_effects"
+      "unit": "unrecognized_external_effects_at_completion"
     }
   ],
   "randomSeed": "refund-response-loss-v0alpha1-seed-1",
@@ -54,9 +54,9 @@
         "intentCount": 105,
         "maxUnknownDurationSteps": 1,
         "reconciledUnknownCount": 10,
-        "responseLossCount": 10,
+        "responseLostEffectCount": 10,
         "unknownOutcomeCount": 10,
-        "unrecognizedExternalEffectCount": 0
+        "unrecognizedExternalEffectCountAtCompletion": 0
       },
       "variant": "profile_aware"
     },
@@ -72,9 +72,9 @@
         "intentCount": 105,
         "maxUnknownDurationSteps": 0,
         "reconciledUnknownCount": 0,
-        "responseLossCount": 10,
+        "responseLostEffectCount": 10,
         "unknownOutcomeCount": 0,
-        "unrecognizedExternalEffectCount": 10
+        "unrecognizedExternalEffectCountAtCompletion": 10
       },
       "variant": "conventional_retry"
     }

@@ -35,9 +35,16 @@ class RefundGameDayTest(unittest.TestCase):
         self.assertEqual(105, result["conditions"]["totalIntentCount"])
         self.assertEqual(10, result["conditions"]["responseLossCount"])
         self.assertEqual(0, profile_aware["duplicateRefundCount"])
+        self.assertEqual(10, profile_aware["responseLostEffectCount"])
         self.assertEqual(10, profile_aware["reconciledUnknownCount"])
         self.assertEqual(10, baseline["duplicateRefundCount"])
-        self.assertEqual(10, baseline["unrecognizedExternalEffectCount"])
+        self.assertEqual(10, baseline["responseLostEffectCount"])
+        self.assertEqual(
+            0, profile_aware["unrecognizedExternalEffectCountAtCompletion"]
+        )
+        self.assertEqual(
+            10, baseline["unrecognizedExternalEffectCountAtCompletion"]
+        )
         self.assertTrue(all(gap["detected"] for gap in result["materialGaps"]))
 
     def test_fault_selection_and_artifacts_are_reproducible(self):

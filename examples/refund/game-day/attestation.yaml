@@ -23,13 +23,13 @@ systemUnderTest:
     version: 0.1.0-alpha.1
     artifact:
       uri: ../../../game_days/refund/runner.py
-      digest: sha256:e22308609dd6d510c27bfedb1a97e49d9c7f7dbb5b51b6097fbbfe025e510a75
+      digest: sha256:31b0f094a058d6193a2dcb102d07d3616a0e3dd22cbce8731b286177e3a85782
   - componentId: fake-refund-provider
     kind: authoritative-outcome-simulator
     version: 0.1.0-alpha.1
     artifact:
       uri: ../../../game_days/refund/runner.py
-      digest: sha256:e22308609dd6d510c27bfedb1a97e49d9c7f7dbb5b51b6097fbbfe025e510a75
+      digest: sha256:31b0f094a058d6193a2dcb102d07d3616a0e3dd22cbce8731b286177e3a85782
 actualConditions:
   randomSeed: refund-response-loss-v0alpha1-seed-1
   faultSchedule:
@@ -70,15 +70,22 @@ claimResults:
   demonstratedCapabilities:
   - external_reconciliation
   measurementRefs:
+  - profile-aware-response-lost-effects
   - profile-aware-duplicate-refunds
   - profile-aware-reconciled-unknowns
+  - baseline-response-lost-effects
   - baseline-duplicate-refunds
-  - baseline-unrecognized-effects
+  - baseline-unrecognized-effects-at-completion
   evidenceRequirementRefs:
   - refund-provider-outcome
   notes: The synthetic run exercised external reconciliation only; it did not exercise
     human takeover or 24-hour mission recovery.
 measurements:
+- measurementId: profile-aware-response-lost-effects
+  metric: response_lost_effect_count
+  value: 10
+  unit: count
+  method: injected response loss after authoritative provider commit
 - measurementId: profile-aware-duplicate-refunds
   metric: duplicate_refund_count
   value: 0
@@ -89,28 +96,33 @@ measurements:
   value: 10
   unit: count
   method: authoritative lookup after response loss
+- measurementId: baseline-response-lost-effects
+  metric: response_lost_effect_count
+  value: 10
+  unit: count
+  method: injected response loss after authoritative provider commit
 - measurementId: baseline-duplicate-refunds
   metric: duplicate_refund_count
   value: 10
   unit: count
   method: authoritative fake-provider effect count by intent
-- measurementId: baseline-unrecognized-effects
-  metric: unrecognized_external_effect_count
+- measurementId: baseline-unrecognized-effects-at-completion
+  metric: unrecognized_external_effect_count_at_completion
   value: 10
   unit: count
-  method: provider effects absent from application acknowledgements
+  method: provider effects absent from the workflow recognized outcome set at completion
 evidence:
 - evidenceObservationId: profile-aware-provider-outcomes
   evidenceRequirementRef: refund-provider-outcome
   artifact:
     uri: evidence/profile-aware-provider-outcomes.json
-    digest: sha256:1c07d9f068fe6466272a21203c06a88219242b388f6ca4384bba1ad9482a801c
+    digest: sha256:5cd534745a550ff65264ebed88043b283784872a90f009bbd67012ac417ee5f8
   observedAt: '2026-08-02T01:00:00Z'
 - evidenceObservationId: baseline-provider-outcomes
   evidenceRequirementRef: refund-provider-outcome
   artifact:
     uri: evidence/baseline-provider-outcomes.json
-    digest: sha256:e236e4a9fd1deb82f05814465c8eeaa10377cc06ab1bad17d3bd179491f5f525
+    digest: sha256:a57125e5ceddd2104ccaa24a3c6c243d9b64214449d3ca0efad9919bfda2f586
   observedAt: '2026-08-02T01:00:00Z'
 evidenceGaps:
 - No qualified human participated.

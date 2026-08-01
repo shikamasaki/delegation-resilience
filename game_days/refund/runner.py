@@ -130,7 +130,7 @@ def run_profile_aware(
 ) -> dict[str, Any]:
     provider = FakeRefundProvider()
     events: list[dict[str, Any]] = []
-    acknowledged_effects: set[str] = set()
+    recognized_effects: set[str] = set()
     unknown_durations: list[int] = []
 
     for intent in workload:
@@ -141,7 +141,7 @@ def run_profile_aware(
                 idempotency_key=stable_key,
                 lose_response=intent.intent_id in faulted_intents,
             )
-            acknowledged_effects.add(effect["effectId"])
+            recognized_effects.add(effect["effectId"])
             events.append(
                 {
                     "intentId": intent.intent_id,
@@ -155,7 +155,7 @@ def run_profile_aware(
             observed = provider.lookup_by_intent(intent.intent_id)
             if len(observed) != 1:
                 raise AssertionError("authoritative reconciliation was not singular")
-            acknowledged_effects.add(observed[0]["effectId"])
+            recognized_effects.add(observed[0]["effectId"])
             unknown_durations.append(1)
             events.append(
                 {
@@ -177,11 +177,11 @@ def run_profile_aware(
             "intentCount": len(workload),
             "externalEffectCount": len(effects),
             "duplicateRefundCount": _duplicate_count(effects),
-            "responseLossCount": len(faulted_intents),
+            "responseLostEffectCount": len(faulted_intents),
             "unknownOutcomeCount": len(unknown_durations),
             "reconciledUnknownCount": len(unknown_durations),
-            "unrecognizedExternalEffectCount": len(
-                {effect["effectId"] for effect in effects} - acknowledged_effects
+            "unrecognizedExternalEffectCountAtCompletion": len(
+                {effect["effectId"] for effect in effects} - recognized_effects
             ),
             "maxUnknownDurationSteps": max(unknown_durations, default=0),
         },
@@ -195,7 +195,7 @@ def run_conventional_retry(
 ) -> dict[str, Any]:
     provider = FakeRefundProvider()
     events: list[dict[str, Any]] = []
-    acknowledged_effects: set[str] = set()
+    recognized_effects: set[str] = set()
 
     for intent in workload:
         attempt = 1
@@ -224,7 +224,7 @@ def run_conventional_retry(
                     "event": "RETRIED_WITH_NEW_ATTEMPT_KEY",
                 }
             )
-        acknowledged_effects.add(effect["effectId"])
+        recognized_effects.add(effect["effectId"])
 
     effects = provider.effects
     return {
@@ -238,11 +238,11 @@ def run_conventional_retry(
             "intentCount": len(workload),
             "externalEffectCount": len(effects),
             "duplicateRefundCount": _duplicate_count(effects),
-            "responseLossCount": len(faulted_intents),
+            "responseLostEffectCount": len(faulted_intents),
             "unknownOutcomeCount": 0,
             "reconciledUnknownCount": 0,
-            "unrecognizedExternalEffectCount": len(
-                {effect["effectId"] for effect in effects} - acknowledged_effects
+            "unrecognizedExternalEffectCountAtCompletion": len(
+                {effect["effectId"] for effect in effects} - recognized_effects
             ),
             "maxUnknownDurationSteps": 0,
         },
@@ -267,7 +267,9 @@ def run_experiment(profile: dict[str, Any]) -> dict[str, Any]:
         baseline["summary"]["duplicateRefundCount"]
         - profile_aware["summary"]["duplicateRefundCount"]
     )
-    invisible_effect_gap = baseline["summary"]["unrecognizedExternalEffectCount"]
+    unrecognized_effect_gap = baseline["summary"][
+        "unrecognizedExternalEffectCountAtCompletion"
+    ]
     return {
         "experiment": "refund-response-loss-game-day/v0alpha1",
         "scenarioRef": SCENARIO_ID,
@@ -293,13 +295,14 @@ def run_experiment(profile: dict[str, Any]) -> dict[str, Any]:
                 ),
             },
             {
-                "gapId": "application-log-external-outcome-divergence",
-                "detected": invisible_effect_gap > 0,
-                "measurement": invisible_effect_gap,
-                "unit": "unrecognized_external_effects",
+                "gapId": "workflow-recognition-external-outcome-divergence",
+                "detected": unrecognized_effect_gap > 0,
+                "measurement": unrecognized_effect_gap,
+                "unit": "unrecognized_external_effects_at_completion",
                 "interpretation": (
-                    "The conventional workflow acknowledged the retry while the "
-                    "first committed effects remained absent from its internal outcome view."
+                    "At workflow completion, the conventional variant recognized the "
+                    "retry effects while the first committed effects remained outside "
+                    "its recognized outcome set."
                 ),
             },
         ],
@@ -427,10 +430,12 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
                 "result": "not_demonstrated",
                 "demonstratedCapabilities": ["external_reconciliation"],
                 "measurementRefs": [
+                    "profile-aware-response-lost-effects",
                     "profile-aware-duplicate-refunds",
                     "profile-aware-reconciled-unknowns",
+                    "baseline-response-lost-effects",
                     "baseline-duplicate-refunds",
-                    "baseline-unrecognized-effects",
+                    "baseline-unrecognized-effects-at-completion",
                 ],
                 "evidenceRequirementRefs": ["refund-provider-outcome"],
                 "notes": (
@@ -440,6 +445,13 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
             }
         ],
         "measurements": [
+            {
+                "measurementId": "profile-aware-response-lost-effects",
+                "metric": "response_lost_effect_count",
+                "value": profile_summary["responseLostEffectCount"],
+                "unit": "count",
+                "method": "injected response loss after authoritative provider commit",
+            },
             {
                 "measurementId": "profile-aware-duplicate-refunds",
                 "metric": "duplicate_refund_count",
@@ -455,6 +467,13 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
                 "method": "authoritative lookup after response loss",
             },
             {
+                "measurementId": "baseline-response-lost-effects",
+                "metric": "response_lost_effect_count",
+                "value": baseline_summary["responseLostEffectCount"],
+                "unit": "count",
+                "method": "injected response loss after authoritative provider commit",
+            },
+            {
                 "measurementId": "baseline-duplicate-refunds",
                 "metric": "duplicate_refund_count",
                 "value": baseline_summary["duplicateRefundCount"],
@@ -462,11 +481,13 @@ def build_artifacts(profile: dict[str, Any]) -> dict[str, bytes]:
                 "method": "authoritative fake-provider effect count by intent",
             },
             {
-                "measurementId": "baseline-unrecognized-effects",
-                "metric": "unrecognized_external_effect_count",
-                "value": baseline_summary["unrecognizedExternalEffectCount"],
+                "measurementId": "baseline-unrecognized-effects-at-completion",
+                "metric": "unrecognized_external_effect_count_at_completion",
+                "value": baseline_summary[
+                    "unrecognizedExternalEffectCountAtCompletion"
+                ],
                 "unit": "count",
-                "method": "provider effects absent from application acknowledgements",
+                "method": "provider effects absent from the workflow recognized outcome set at completion",
             },
         ],
         "evidence": [

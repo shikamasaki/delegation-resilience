@@ -1114,9 +1114,9 @@
     "intentCount": 105,
     "maxUnknownDurationSteps": 1,
     "reconciledUnknownCount": 10,
-    "responseLossCount": 10,
+    "responseLostEffectCount": 10,
     "unknownOutcomeCount": 10,
-    "unrecognizedExternalEffectCount": 0
+    "unrecognizedExternalEffectCountAtCompletion": 0
   },
   "variant": "profile_aware"
 }

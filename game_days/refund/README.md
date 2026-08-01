@@ -53,12 +53,15 @@ Profile digestはRFC 8785 JCSのcanonical bytesへSHA-256を適用します。Ev
 
 | Measurement | profile-aware | conventional retry |
 |---|---:|---:|
+| effects whose commit response was lost | 10 | 10 |
+| effects unrecognized at workflow completion | 0 | 10 |
+| UNKNOWN resolved by reconciliation | 10 | 0 |
 | external effects | 105 | 115 |
 | duplicate refunds | 0 | 10 |
-| reconciled unknown outcomes | 10 | 0 |
-| effects absent from application acknowledgement | 0 | 10 |
 
-この結果は「Delegation Resilience全体が実証された」ことを意味しません。示すのは、ambiguous commitを`FAILED`へ潰すこととattempt-scoped idempotencyの組合せが、application acknowledgementだけでは見えない外部effectを作り得ることです。
+両variantが同じ10件の通信障害を受けています。違いは障害の回避ではなく、profile-aware側が外部照合によって事実を回復し、安全に収束したことです。Baselineではambiguous commitを`FAILED`へ潰すこととattempt-scoped idempotencyの組合せにより、workflow終了時にも認識されない外部effectが残ります。
+
+この結果は「Delegation Resilience全体が実証された」ことを意味しません。
 
 ## Assurance boundary
 

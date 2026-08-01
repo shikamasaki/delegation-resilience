@@ -24,6 +24,8 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 - [x] `DelegationResilienceProfile v0alpha1`のJSON Schema
 - [x] intent、attempt、epistemic outcome、external effect、reconciliation、compensationの状態分離
 - [x] machine-readable Refund profileの初期instance
+- [x] profile内参照graphとcore assurance semanticsのvalidator
+- [x] exercise mode、実測条件、証拠強度を持つAttestation schema
 - [ ] canonicalizationとdigestのreference implementation
 - [ ] scenario taxonomyとevidence envelopeの外部review
 - [ ] AWS/NIST/ISOとのclaim-level差分表のreview
@@ -46,7 +48,7 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 ### Build
 
-- [ ] v0alpha schema validator and lint rules
+- [ ] v0alpha validatorのdependency・digest・invalidation lint rules
 - [ ] local deterministic exercise runner
 - [ ] fake model/tool/approver/evidence sink
 - [ ] epistemic `UNKNOWN`とexternal reconciliation

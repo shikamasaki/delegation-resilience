@@ -3,14 +3,42 @@
   "title": "ExerciseSpec",
   "type": "object",
   "additionalProperties": false,
-  "required": ["metadata", "scenarioId", "claimRefs", "injects", "expectedObservations", "passCriteria", "measurementConditions"],
+  "required": ["metadata", "scenarioId", "claimRefs", "exerciseMode", "executionPlan", "injects", "expectedObservations", "passCriteria", "measurementConditions"],
   "properties": {
     "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
     "scenarioId": { "type": "string", "minLength": 1 },
     "claimRefs": {
       "type": "array",
       "minItems": 1,
+      "uniqueItems": true,
       "items": { "type": "string", "minLength": 1 }
+    },
+    "exerciseMode": { "$ref": "common.schema.json#/$defs/exerciseMode" },
+    "executionPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["randomSeed", "parameters", "sharedDependencies"],
+      "properties": {
+        "randomSeed": { "type": "string", "minLength": 1 },
+        "parameters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "value", "unit"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "value": { "type": ["number", "integer", "string", "boolean"] },
+              "unit": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "sharedDependencies": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
     },
     "injects": {
       "type": "array",
@@ -18,9 +46,11 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["at", "fault"],
+        "required": ["atOffset", "duration", "target", "fault"],
         "properties": {
-          "at": { "type": "string", "minLength": 1 },
+          "atOffset": { "type": "string", "minLength": 1 },
+          "duration": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 },
           "fault": { "type": "string", "minLength": 1 }
         }
       }

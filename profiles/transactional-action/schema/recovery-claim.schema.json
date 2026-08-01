@@ -3,12 +3,36 @@
   "title": "RecoveryClaim",
   "type": "object",
   "additionalProperties": false,
-  "required": ["metadata", "claimId", "statement", "scope", "triggers", "phases", "assuranceMechanisms", "supportStatus", "deploymentDisposition", "assumptions", "knownGaps", "residualUncertainty", "assuranceDependencies"],
+  "required": ["metadata", "claimId", "statement", "scope", "constraintRefs", "actionRefs", "evidenceRequirementRefs", "requiredCapabilities", "triggers", "phases", "assuranceMechanisms", "supportStatus", "deploymentDisposition", "assumptions", "knownGaps", "residualUncertainty", "assuranceDependencies"],
   "properties": {
     "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
     "claimId": { "type": "string", "minLength": 1 },
     "statement": { "type": "string", "minLength": 1 },
     "scope": { "type": "string", "minLength": 1 },
+    "constraintRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "actionRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "evidenceRequirementRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "common.schema.json#/$defs/recoveryCapability" }
+    },
     "triggers": {
       "type": "array",
       "minItems": 1,

@@ -35,12 +35,14 @@ Queueへ移しただけではrecoveryとみなしません。[Machine-readable p
 
 ## Initial exercises
 
-1. 返金成功後、agentがresponseを受け取る前にworkerが停止する。
-2. 承認後、commit前にdelegationが取り消される。
-3. fallbackへ切り替えたが、結果照会権限が不足している。
-4. human approverが不在でhandover SLAを超過する。
-5. evidence sinkが停止する。
-6. primaryとfallbackが同じIdP停止の影響を受ける。
+実証目的を混ぜず、次の四つへ分けます。
+
+1. `Deterministic test`: response loss、idempotency、revocation、reconciliation、fencing。
+2. `Shared-fate test`: IdP、policy、provider status API、operator channelの共通障害。
+3. `Facilitated human drill`: 15分handover、必要情報、実権限、queue capacity、24時間mission recovery。
+4. `Baseline comparison`: 通常retry実装との二重実行数、unknown滞留時間、回復時間、operator workload比較。
+
+[Machine-readable profile](profile.yaml)では、各scenarioに初期backlog、毎時arrival、fault継続時間、operator数と能力、shared dependency、response-loss件数、固定random seedを宣言します。未宣言のloadへ結果を一般化しません。
 
 ## Expected observations
 

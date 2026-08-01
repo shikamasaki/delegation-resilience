@@ -9,18 +9,20 @@
 ## 1. Logical intent lifecycle
 
 ```text
-REGISTERED → PREPARED → AUTHORIZED → COMMIT_REQUESTED → CLOSED
-                  └──────────────→ CANCELLED
+REGISTERED → PREPARED → AUTHORIZED → COMMIT_REQUESTED → CLOSED_NO_EFFECT
+     │           │          │                 └──────→ CLOSED_WITH_EFFECT
+     └───────────┴──────────┴→ CANCELLED_PRE_COMMIT
 ```
 
 - `REGISTERED`: stable intent IDとcanonical payloadを記録済み
 - `PREPARED`: precondition evidenceとimpact reservationを評価済み
 - `AUTHORIZED`: grant、policy digest、expiryへ束縛されたauthorityが有効
 - `COMMIT_REQUESTED`: 少なくとも一つのexecution attemptを開始した
-- `CLOSED`: external outcomeを照合し、必要なrecovery actionを完了した
-- `CANCELLED`: commit attempt開始前に取消した
+- `CLOSED_NO_EFFECT`: commit attempt開始後、外部効果がなかったことをauthoritative sourceで確認した
+- `CLOSED_WITH_EFFECT`: 外部効果を照合し、必要なrecoveryまたはcompensation episodeを完了した
+- `CANCELLED_PRE_COMMIT`: execution attempt開始前に取消した
 
-`COMMIT_REQUESTED`以降は、外部効果がないことを確認せず`CANCELLED`へ移行できません。
+execution attempt開始後は`CANCELLED_PRE_COMMIT`へ移行できません。外部効果がなかった場合も、照合後に`CLOSED_NO_EFFECT`へ移行します。
 
 ## 2. Execution attempt
 
@@ -58,11 +60,9 @@ NONE
 APPLIED
 PARTIALLY_APPLIED
 REVERSED
-COMPENSATED
 ```
 
 - `REVERSED`: authoritative systemが元の意味的状態へ戻ったことを確認済み
-- `COMPENSATED`: 別actionで影響を補った。元のeffectが消えたとは限らない
 - irreversibilityはeffect stateではなくTransactionalActionProfile上のproperty
 
 外部effectは可能な限りauthoritative outcome probeから導出します。
@@ -70,6 +70,7 @@ COMPENSATED
 ## 5. Reconciliation
 
 ```text
+NOT_REQUIRED
 PENDING → MATCHED | MISMATCHED | SOURCE_UNAVAILABLE
 ```
 
@@ -89,6 +90,8 @@ IMPOSSIBLE
 ```
 
 Compensationは独立したlogical intent、authority、evidence、external effectを持ちます。元actionのstateを上書きしません。
+
+例えば元actionが実行され、その後に補償actionが成功した場合は、元actionについて`externalEffect = APPLIED`と`compensationState = SUCCEEDED`を同時に保持し、`compensationIntentRef`で別intentを参照します。
 
 ## Safety invariants
 

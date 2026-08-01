@@ -1,0 +1,15 @@
+{
+  "intentId": "refund-intent-001",
+  "intentState": "CLOSED_WITH_EFFECT",
+  "attempts": [
+    {
+      "attemptId": "attempt-001",
+      "state": "ACKNOWLEDGED"
+    }
+  ],
+  "epistemicOutcome": "CONFIRMED_SUCCEEDED",
+  "externalEffect": "APPLIED",
+  "reconciliationState": "MATCHED",
+  "compensationState": "NOT_REQUIRED",
+  "observedAt": "2026-08-02T00:05:00Z"
+}

@@ -39,7 +39,7 @@
       "enum": ["PERMITTED", "PERMITTED_WITH_ACCEPTANCE", "PROHIBITED"]
     },
     "intentState": {
-      "enum": ["REGISTERED", "PREPARED", "AUTHORIZED", "COMMIT_REQUESTED", "CLOSED", "CANCELLED"]
+      "enum": ["REGISTERED", "PREPARED", "AUTHORIZED", "COMMIT_REQUESTED", "CLOSED_NO_EFFECT", "CLOSED_WITH_EFFECT", "CANCELLED_PRE_COMMIT"]
     },
     "attemptState": {
       "enum": ["STARTED", "ACKNOWLEDGED", "TIMED_OUT", "ABORTED"]
@@ -48,13 +48,19 @@
       "enum": ["UNKNOWN", "CONFIRMED_SUCCEEDED", "CONFIRMED_FAILED", "PARTIAL"]
     },
     "externalEffect": {
-      "enum": ["NONE", "APPLIED", "PARTIALLY_APPLIED", "REVERSED", "COMPENSATED"]
+      "enum": ["NONE", "APPLIED", "PARTIALLY_APPLIED", "REVERSED"]
     },
     "reconciliationState": {
-      "enum": ["PENDING", "MATCHED", "MISMATCHED", "SOURCE_UNAVAILABLE"]
+      "enum": ["NOT_REQUIRED", "PENDING", "MATCHED", "MISMATCHED", "SOURCE_UNAVAILABLE"]
     },
     "compensationState": {
       "enum": ["NOT_REQUIRED", "AVAILABLE", "REQUESTED", "SUCCEEDED", "FAILED", "UNAVAILABLE", "IMPOSSIBLE"]
+    },
+    "recoveryCapability": {
+      "enum": ["containment", "handover", "mission_recovery", "revalidation", "external_reconciliation", "human_takeover", "fallback"]
+    },
+    "exerciseMode": {
+      "enum": ["deterministic_simulation", "sandbox", "tabletop", "live_drill", "production_like"]
     },
     "artifactReference": {
       "type": "object",

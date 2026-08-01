@@ -36,14 +36,36 @@ Attestationは実測結果であり、profile本文へ埋め込みません。
 
 Schemas use JSON Schema Draft 2020-12. YAMLはauthoring convenienceであり、duplicate keyを拒否してJSON data modelへ変換してから検証します。
 
-JSON Schemaは構造とcardinalityを検証します。次のreferential semanticsはPhase 1のlinterで検証します。
+## Two-stage validation
+
+v0alpha1への適合確認は、JSON Schemaだけでは完了しません。構造検証とcross-artifact意味検証の両方を実行します。
+
+```bash
+python3 -m pip install -r requirements-validation.txt
+check-jsonschema --schemafile profiles/transactional-action/schema/profile.schema.json examples/refund/profile.yaml
+python3 tools/validate_profile.py examples/refund/profile.yaml
+```
+
+JSON Schema単独で通過したdangling referenceやunsupported deploymentを、valid profileとして扱いません。CIは両方を必須stepとして実行します。
+
+JSON Schemaは構造とcardinalityを検証します。[Semantic validator](../../tools/validate_profile.py)は、現時点で次を検証します。
 
 - artifact ID、action ID、claim IDのuniqueness
 - `actionRefs`と`claimRefs`が同じprofile内に存在すること
+- `constraintRefs`と`evidenceRequirementRefs`が同じprofile内に存在すること
+- すべてのconstitutional constraintが少なくとも一つのRecoveryClaimから参照されること
+- `SUPPORTED`でないRecoveryClaimが`PROHIBITED`であること
+- Attestationのscenario、claim、measurement、evidence参照
+- `demonstrated`がclaimのrequired capabilityとevidenceを満たすこと
+- deterministic simulationだけで`human_takeover`を実証扱いにしないこと
+- Attestationの時刻順序とexpiry
+
+次はまだ後続linterの対象です。
+
 - recovery claimのdependency IDと実際のconfigurationの対応
-- 非交渉制約に対する`PROHIBITED`既定の維持
+- 複数claimを束ねたdeployment全体のdisposition導出
 - Attestationのprofile digest、scenario、claimの一致
-- validity intervalとstale attestation
+- dependency変更に伴うAttestationの自動失効
 
 ## Canonicalization and digest
 

@@ -18,8 +18,24 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install validator
-        run: python -m pip install check-jsonschema==0.37.4
+        run: python -m pip install -r requirements-validation.txt
       - name: Validate JSON Schemas
         run: check-jsonschema --check-metaschema profiles/transactional-action/schema/*.json
       - name: Validate refund profile
         run: check-jsonschema --schemafile profiles/transactional-action/schema/profile.schema.json examples/refund/profile.yaml
+      - name: Validate attestation fixture
+        run: check-jsonschema --schemafile profiles/transactional-action/schema/attestation.schema.json tests/fixtures/valid/attestation-deterministic.yaml
+      - name: Validate runtime state fixture
+        run: check-jsonschema --schemafile profiles/transactional-action/schema/runtime-state.schema.json tests/fixtures/valid/runtime-state*.json
+      - name: Reject invalid runtime states
+        run: |
+          for fixture in tests/fixtures/invalid/runtime-*.json; do
+            if check-jsonschema --schemafile profiles/transactional-action/schema/runtime-state.schema.json "$fixture"; then
+              echo "invalid runtime state was unexpectedly accepted: $fixture"
+              exit 1
+            fi
+          done
+      - name: Validate reference integrity and assurance semantics
+        run: python tools/validate_profile.py examples/refund/profile.yaml --attestation tests/fixtures/valid/attestation-deterministic.yaml --as-of 2026-08-02T00:00:00Z
+      - name: Run semantic negative tests
+        run: python -m unittest discover -s tests -p 'test_*.py'

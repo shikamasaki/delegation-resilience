@@ -23,6 +23,46 @@
     "externalEffect": { "$ref": "common.schema.json#/$defs/externalEffect" },
     "reconciliationState": { "$ref": "common.schema.json#/$defs/reconciliationState" },
     "compensationState": { "$ref": "common.schema.json#/$defs/compensationState" },
+    "compensationIntentRef": { "type": "string", "minLength": 1 },
     "observedAt": { "type": "string", "format": "date-time" }
-  }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "intentState": { "const": "CANCELLED_PRE_COMMIT" } } },
+      "then": {
+        "properties": {
+          "attempts": { "maxItems": 0 },
+          "externalEffect": { "const": "NONE" },
+          "reconciliationState": { "const": "NOT_REQUIRED" },
+          "compensationState": { "const": "NOT_REQUIRED" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "intentState": { "const": "CLOSED_NO_EFFECT" } } },
+      "then": {
+        "properties": {
+          "externalEffect": { "const": "NONE" },
+          "reconciliationState": { "const": "MATCHED" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "intentState": { "const": "CLOSED_WITH_EFFECT" } } },
+      "then": {
+        "properties": {
+          "externalEffect": { "enum": ["APPLIED", "PARTIALLY_APPLIED", "REVERSED"] },
+          "reconciliationState": { "const": "MATCHED" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "compensationState": { "enum": ["REQUESTED", "SUCCEEDED", "FAILED"] }
+        }
+      },
+      "then": { "required": ["compensationIntentRef"] }
+    }
+  ]
 }

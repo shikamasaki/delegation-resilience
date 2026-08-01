@@ -70,6 +70,17 @@ Exerciseの結果は、次の形式で表現します。
 
 `passed`を普遍的なresilience保証として扱いません。
 
+Attestationは少なくともexercise mode、開始・終了時刻、system under testとversion、実際のfault scheduleとload、shared dependencies、human participation、structured measurements、evidence gapを保持します。
+
+証拠強度には上限があります。
+
+- deterministic simulationはtechnical state transitionを検証できるが、実在する人間のtakeover capabilityを実証できない。
+- tabletopはroleやdecision pathを調べられるが、RecoveryClaim全体や実権限、操作access、処理能力を`demonstrated`にできない。
+- sandboxはproduction-equivalentな権限・依存・loadとの差を残存不確実性として記録する。
+- live drillとproduction-like exerciseも、観測範囲外へ結果を一般化しない。
+
+`result: demonstrated`にはRecoveryClaimの`requiredCapabilities`をすべて満たす測定とevidenceを必要とします。部分的な能力だけを確認した場合、確認した能力は記録してもclaim全体は`not_demonstrated`です。
+
 最低限のscenario familyは次です。
 
 - model/tool/provider outage

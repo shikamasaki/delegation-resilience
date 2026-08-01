@@ -99,7 +99,16 @@ Human identity、workload identity、agentの表示名を混同しません。
 - recovery/re-entry criteria
 - authority to make permanent changes
 
-### RecoveryProfile
+### RecoveryClaim and RecoveryProfile
+
+RecoveryClaimは、限定されたscopeで何を回復可能と主張するかを表し、次の参照edgeを必須にします。
+
+- `constraintRefs`: claimが支持すべき非交渉制約
+- `actionRefs`: claimのscopeに含むaction
+- `evidenceRequirementRefs`: claim判定に必要なEvidenceProfile上の要件
+- `requiredCapabilities`: `demonstrated`判定に必要な回復能力
+
+RecoveryProfileは、そのclaimを実現する構成を記述します。
 
 - safe state
 - capability-specific degraded modes
@@ -129,14 +138,17 @@ Fallbackは`configured`と`qualified`を区別します。所定のexerciseに�
 
 Attestationには次を含めます。
 
-- scenario and assumptions
-- system and contract versions
-- observed outcomes
-- timing and exposure
-- human participation conditions
-- evidence gaps
-- residual weaknesses
-- issuer and validity
+- exercise mode and exact scenario
+- actual fault schedule、load、shared dependencies
+- system under testのcomponentとversion
+- started/completed time
+- structured measurements
+- human participation、authority、operational access
+- evidence requirementとartifactの対応
+- evidence gaps and residual uncertainty
+- issuer、validity、evaluated profile digest
+
+`demonstrated`は単なるrunnerの成功ではありません。Claimの`requiredCapabilities`と必要証拠を満たす場合だけ使用します。特にdeterministic simulationとtabletopは、実際の人間のauthority、access、capacityを伴う`human_takeover`の証拠にはなりません。
 
 ### LearningDecision
 
@@ -197,11 +209,13 @@ DelegationResilienceProfile
 Intent、attempt、knowledge、external effect、reconciliation、compensationは別の状態機械です。完全な定義は[State Model](state-model.md)を参照してください。
 
 ```text
-intent:         REGISTERED → PREPARED → AUTHORIZED → COMMIT_REQUESTED → CLOSED
+intent:         REGISTERED → PREPARED → AUTHORIZED → COMMIT_REQUESTED
+                → CLOSED_NO_EFFECT | CLOSED_WITH_EFFECT
+                REGISTERED | PREPARED | AUTHORIZED → CANCELLED_PRE_COMMIT
 attempt:        STARTED → ACKNOWLEDGED | TIMED_OUT | ABORTED
 epistemic:      UNKNOWN | CONFIRMED_SUCCEEDED | CONFIRMED_FAILED | PARTIAL
-external:       NONE | APPLIED | PARTIALLY_APPLIED | REVERSED | COMPENSATED
-reconciliation: PENDING | MATCHED | MISMATCHED | SOURCE_UNAVAILABLE
+external:       NONE | APPLIED | PARTIALLY_APPLIED | REVERSED
+reconciliation: NOT_REQUIRED | PENDING | MATCHED | MISMATCHED | SOURCE_UNAVAILABLE
 ```
 
 基本規則は次の通りです。

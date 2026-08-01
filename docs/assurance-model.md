@@ -20,9 +20,18 @@ Claim
 
 例：
 
-> 返金agentのmodelが停止しても、自動返金を停止し、15分以内にhuman queueへ切り替え、二重返金を発生させない。
+> 返金agentのmodelが停止しても、自動返金を停止し、15分以内に必要情報と権限を伴ってhuman queueへ引き継ぎ、正当な要求を24時間以内に解決し、二重返金を発生させない。
 
-このclaimは、model停止以外の障害や、15分を超えた後の業務品質まで自動的には含みません。
+このclaimは、宣言したprovider、workflow、staffing、exercise条件の範囲に限られます。Queueへの移送だけをrecoveryとはみなしません。
+
+## Acceptability axes
+
+Recovery claimは、次を別々に評価します。
+
+- `constraint_integrity`: 非交渉制約、harm ceiling、contestabilityを維持したか
+- `mission_adequacy`: critical functionとimpact toleranceを満たしたか
+
+Domain Profileは必要に応じてdistributional、cognitive、physical impactを追加します。停止による二次的危害もmission adequacy側で観測します。
 
 ## Evidence semantics
 
@@ -39,6 +48,16 @@ Evidence eventは、少なくとも次を区別します。
 - signatureは署名主体を示す。
 - external reconciliationは外部結果との一致を確認する。
 - いずれも、目的の妥当性やsource自身の正しさを単独では保証しない。
+
+## Assurance mechanisms
+
+一つのclaimは、次の複数mechanismで同時に支えられます。
+
+- `ENFORCEABLE`: policy enforcement pointで強制する
+- `OBSERVABLE`: 独立sourceまたはexternal stateから観測する
+- `EXERCISABLE`: 限定条件下で実際に演習する
+
+Mechanismの存在と、現在のsupport statusを混同しません。Supportは`ASSERTED / SUPPORTED / CONTRADICTED / UNKNOWN`、deployment判断は`PERMITTED / PERMITTED_WITH_ACCEPTANCE / PROHIBITED`として別に記録します。
 
 ## Exercise semantics
 

@@ -17,9 +17,10 @@ Delegation Resilienceはpre-specification段階です。現時点では、機能
 
 1. Issueでproblem、affected stakeholders、existing alternativesを説明する。
 2. 変更が解くclaimと、解かないclaimを明示する。
-3. `ENFORCEABLE / OBSERVABLE / EXERCISABLE / ASSERTED / UNSUPPORTED`のどこに属するか示す。
-4. 代表scenarioとcounterexampleを用意する。
-5. 意味変更はADRまたはversioned proposalとしてreviewする。
+3. `ENFORCEABLE / OBSERVABLE / EXERCISABLE`のどのmechanismで支えるかを示す。
+4. support statusとdeployment dispositionを分けて示す。
+5. 代表scenarioとcounterexampleを用意する。
+6. 意味変更はADRまたはversioned proposalとしてreviewする。
 
 ## Standards language
 

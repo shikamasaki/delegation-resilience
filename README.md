@@ -1,6 +1,6 @@
 # Delegation Resilience
 
-> Continuous recovery assurance for AI delegation.
+> Repeatable recovery assurance for AI delegation.
 
 Delegation Resilience（委譲レジリエンス）は、AIへ作業・判断・限定された実行権限を委譲する社会技術的業務システムが、法令・権利・安全上の制約を維持しながら、変動や異常の下でも許容可能な成果と組織的accountabilityを保ち、必要に応じて安全に拒否・停止・縮退・復旧し、実際の仕事から適応能力を高めるための考え方です。
 
@@ -10,12 +10,15 @@ Delegation Resilience（委譲レジリエンス）は、AIへ作業・判断・
 
 AIそのものを完全に信頼できるようにするのではなく、AIを完全には信頼できなくても、人間と組織が許容可能な成果、介入権、説明責任、回復能力を失わないようにします。
 
-既存のagent governanceが主に扱う問いは、次の二つです。
+既存のagent governance、AI risk management、operational guidanceも、business outcome、human handoff、fallback、failure exercise、continuous improvementを扱っています。Delegation Resilienceはそれらを置き換えるものではありません。
 
-- 何が許されているか
-- 何が起きたか
+- mission単位の限定されたrecovery claim
+- 外部結果について何が分かっているかというepistemic state
+- fallbackとhuman takeoverのqualification
+- claimを支える証拠のmechanismと強度
+- exercise attestationと残存不確実性
 
-Delegation Resilienceは、さらに次を問います。
+を一つのvendor-neutralなassurance lifecycleへ結び、次を問います。
 
 > 失敗したとき、委譲された業務はimpact tolerance内へ本当に回復できるか。人間や代替系は本当に引き継げるか。それを限定条件付きの証拠として反復可能に示せるか。
 
@@ -24,15 +27,15 @@ Delegation Resilienceは、さらに次を問います。
 ```text
 Constitutional constraints
           ↓
-Mission and stakeholders
+Acceptability decision
           ↓
-Delegation and adaptive envelope
+Mission, stakeholders and delegation boundary
           ↓
-Execution → observation → external reconciliation
+Domain profile and adaptive envelope
           ↓
-Containment → degradation → recovery → revalidation
+Evidence → exercise → external reconciliation
           ↓
-Exercise evidence and learning decisions
+Containment → handover → recovery → revalidation → learning
 ```
 
 本構想では、次を明確に分離します。
@@ -49,7 +52,7 @@ Exercise evidence and learning decisions
 2. 能力と権限を分離し、権限には由来・範囲・期限を持たせる。
 3. Missionより法令・権利・安全上の制約を上位に置く。
 4. 安全な拒否・停止・目標放棄もresilient outcomeとして認める。
-5. `outcome_unknown`と部分成功を第一級の状態として扱う。
+5. 外部結果に関するepistemic `UNKNOWN`と部分観測を第一級状態として扱う。
 6. fallbackは設定ではなく、演習済みの能力として扱う。
 7. human oversightを情報・時間・技能・権限・実行手段で評価する。
 8. failureだけでなく、near miss、everyday success、現場適応から学ぶ。
@@ -66,21 +69,43 @@ Exercise evidence and learning decisions
 - Recovery Assurance experiments: 外部状態を変更するAI workflowのgame day、外部結果照合、human takeover
 - Future vertical packs: customer operations、finance、public sectorなど。実証前には一般化しません。
 
+思想と実装範囲を次の二層に分けます。
+
+```text
+Delegation Resilience Doctrine
+├─ Universal Core
+│  ├─ constitutional constraints and acceptability
+│  ├─ delegation boundary and accountability
+│  ├─ intervention and uncertainty
+│  ├─ recovery claims and evidence
+│  └─ learning
+└─ Domain Profiles
+   ├─ Transactional Action
+   ├─ Knowledge Work
+   ├─ Human Decision Support
+   └─ Physical / Safety-Critical
+```
+
+現時点で機械可読形式とrunnerの対象にするのは`Transactional Action`だけです。思想の普遍性とsoftware kernelの再利用性を混同しません。
+
 最初から独自IAM、policy engine、workflow runtime、observability backendを再実装しません。OPA/Cedar、既存IAM、OpenTelemetry、durable execution基盤へ投影し、Delegation Resilience固有の意味と保証ループに集中します。
 
 ## Repository contents
 
 - [Manifesto](docs/manifesto.md): 問題設定、定義、原則、境界
 - [Reference Model](docs/reference-model.md): 共通概念とライフサイクル
+- [Universal Core](docs/universal-core.md): 全domainに共通する最小概念
 - [Assurance Model](docs/assurance-model.md): claim、evidence、exercise、不確実性
+- [State Model](docs/state-model.md): intent、attempt、epistemic outcome、external effectの分離
 - [Landscape and References](docs/landscape.md): 標準、研究、関連製品との境界
+- [Transactional Action Profile](profiles/transactional-action/README.md): v0alpha aggregateとJSON Schema
 - [Roadmap](ROADMAP.md): 12か月の検証計画とspin-out条件
 - [ADR-0001](docs/decisions/0001-incubate-before-spinout.md): 思想を独立させ、製品分離を遅らせる理由
 - [Refund example](examples/refund/README.md): 最初の非coding reference scenario
 
 ## Status
 
-`incubating / pre-specification`
+`incubating / v0alpha working model`
 
 ここで公開する語彙と形式は、現時点では国際標準、認証、規制適合を意味しません。少なくとも二つの異なる業務領域と複数の独立実装で有効性を確認するまでは、`standard`ではなく`working model`または`v0.x format`と呼びます。
 

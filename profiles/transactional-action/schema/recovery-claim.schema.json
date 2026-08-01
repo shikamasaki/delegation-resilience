@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RecoveryClaim",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "claimId", "statement", "scope", "triggers", "phases", "assuranceMechanisms", "supportStatus", "deploymentDisposition", "assumptions", "knownGaps", "residualUncertainty", "assuranceDependencies"],
+  "properties": {
+    "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+    "claimId": { "type": "string", "minLength": 1 },
+    "statement": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "triggers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "phases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contain", "handover", "recover", "revalidate"],
+      "properties": {
+        "contain": { "type": "string", "minLength": 1 },
+        "handover": { "type": "string", "minLength": 1 },
+        "recover": { "type": "string", "minLength": 1 },
+        "revalidate": { "type": "string", "minLength": 1 }
+      }
+    },
+    "assuranceMechanisms": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "common.schema.json#/$defs/assuranceMechanism" }
+    },
+    "supportStatus": { "$ref": "common.schema.json#/$defs/supportStatus" },
+    "deploymentDisposition": { "$ref": "common.schema.json#/$defs/deploymentDisposition" },
+    "riskAcceptanceRef": { "type": "string" },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "knownGaps": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "residualUncertainty": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "assuranceDependencies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "id", "observedVersion", "invalidationPolicy"],
+        "properties": {
+          "type": {
+            "enum": ["model", "prompt", "tool", "policy", "grant", "connector", "outcome_source", "human_role", "dependency"]
+          },
+          "id": { "type": "string", "minLength": 1 },
+          "observedVersion": { "type": "string", "minLength": 1 },
+          "invalidationPolicy": { "enum": ["any_change", "manual_review"] }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "deploymentDisposition": { "const": "PERMITTED_WITH_ACCEPTANCE" }
+        }
+      },
+      "then": { "required": ["riskAcceptanceRef"] }
+    }
+  ]
+}

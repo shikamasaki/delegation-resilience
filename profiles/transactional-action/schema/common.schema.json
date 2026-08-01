@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Delegation Resilience common definitions",
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9._:/-]*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": ["human", "group", "organization", "workload", "agent"]
+        }
+      }
+    },
+    "assuranceMechanism": {
+      "enum": ["ENFORCEABLE", "OBSERVABLE", "EXERCISABLE"]
+    },
+    "supportStatus": {
+      "enum": ["ASSERTED", "SUPPORTED", "CONTRADICTED", "UNKNOWN"]
+    },
+    "deploymentDisposition": {
+      "enum": ["PERMITTED", "PERMITTED_WITH_ACCEPTANCE", "PROHIBITED"]
+    },
+    "intentState": {
+      "enum": ["REGISTERED", "PREPARED", "AUTHORIZED", "COMMIT_REQUESTED", "CLOSED", "CANCELLED"]
+    },
+    "attemptState": {
+      "enum": ["STARTED", "ACKNOWLEDGED", "TIMED_OUT", "ABORTED"]
+    },
+    "epistemicOutcome": {
+      "enum": ["UNKNOWN", "CONFIRMED_SUCCEEDED", "CONFIRMED_FAILED", "PARTIAL"]
+    },
+    "externalEffect": {
+      "enum": ["NONE", "APPLIED", "PARTIALLY_APPLIED", "REVERSED", "COMPENSATED"]
+    },
+    "reconciliationState": {
+      "enum": ["PENDING", "MATCHED", "MISMATCHED", "SOURCE_UNAVAILABLE"]
+    },
+    "compensationState": {
+      "enum": ["NOT_REQUIRED", "AVAILABLE", "REQUESTED", "SUCCEEDED", "FAILED", "UNAVAILABLE", "IMPOSSIBLE"]
+    },
+    "artifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uri", "digest"],
+      "properties": {
+        "uri": { "type": "string", "format": "uri-reference" },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

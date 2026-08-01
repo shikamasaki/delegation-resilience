@@ -22,7 +22,16 @@
 
 ## Recovery claim
 
-modelまたはpolicy serviceが停止した場合、read-only調査は継続できますが、新規返金commitを停止します。15分以内にhuman queueへ切り替え、結果不明の返金を再実行する前にprovider側の状態を照合します。
+Recoveryを次の四段階で評価します。
+
+- `contain`: modelまたはpolicy serviceが停止したら、新規返金commitを止め、boundedなread-only調査だけを継続する。
+- `handover`: 15分以内に、intent、evidence、authority status、known unknownsを伴ってhuman queueへ引き継ぐ。
+- `recover`: 正当な要求を24時間以内に解決し、backlogを許容範囲内に保ち、二重返金を発生させない。
+- `revalidate`: unknown actionを外部照合し、policy、grant、connector、fallbackを再検証してから自動処理を再開する。
+
+Queueへ移しただけではrecoveryとみなしません。[Machine-readable profile](profile.yaml)がこのclaimと初期exerciseを定義します。
+
+この例ではbacklog上限100件、24時間のoperator coverage、毎時20件のmanual capacity、provider APIの4時間以内の復旧を明示的な仮定にしています。いずれも未実証なので、claimは`ASSERTED / PROHIBITED`です。仮定を隠して一般的なprovider outageへの回復を主張しません。
 
 ## Initial exercises
 
@@ -36,9 +45,21 @@ modelまたはpolicy serviceが停止した場合、read-only調査は継続で�
 ## Expected observations
 
 - 二重返金が発生しない。
-- response lossは`OUTCOME_UNKNOWN`になる。
+- response lossはepistemic `UNKNOWN`になる。
 - external reconciliation前にautomatic retryしない。
 - stale grantではcommitできない。
 - read、propose、commitが別々に縮退する。
 - human takeoverの時間、情報、権限不足を記録する。
 - exercise結果にscope、system version、残存不確実性を付ける。
+
+## Comparative experiment
+
+同じfault scheduleを、profile-aware workflowと通常のretry実装へ適用します。
+
+- duplicate refunds
+- epistemic `UNKNOWN`の滞留時間
+- time to contain、handover、recover
+- operator workload
+- 既存log/evalでは分からなかったmaterial gap
+
+を比較し、単にscenarioをpassしたかではなく、回復設計が実際に差を生むかを検証します。

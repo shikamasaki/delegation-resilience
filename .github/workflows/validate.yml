@@ -1,0 +1,25 @@
+name: Validate v0alpha profile
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install validator
+        run: python -m pip install check-jsonschema==0.37.4
+      - name: Validate JSON Schemas
+        run: check-jsonschema --check-metaschema profiles/transactional-action/schema/*.json
+      - name: Validate refund profile
+        run: check-jsonschema --schemafile profiles/transactional-action/schema/profile.schema.json examples/refund/profile.yaml

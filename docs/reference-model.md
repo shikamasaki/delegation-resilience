@@ -2,7 +2,7 @@
 
 ## Scope
 
-本モデルの対象は、単体のmodelやagentではなく、AIへ仕事を委譲した社会技術的業務システムです。
+本モデルの対象は、単体のmodelやagentではなく、AIへ仕事を委譲した社会技術的業務システムです。思想上の`Universal Core`と、業務固有の`Domain Profile`を分離します。
 
 ```text
 stakeholders
@@ -26,6 +26,25 @@ Missionや業務上のrisk appetiteより上位の制約です。
 - non-delegable decisions
 - final accountable organization and roles
 
+非交渉制約は、証拠不足を理由にrisk acceptanceしてdeploymentできません。
+
+### AcceptabilityDecision
+
+何を「許容可能」と呼ぶかを決定した手続きと根拠を記録します。Mission ownerのrisk appetiteだけでは決定しません。
+
+- decision owner and approvers
+- beneficiaries、affected partiesとそのparticipation
+- current workflow、no-AI、lower-autonomyを含むfeasible alternatives
+- individual and group harm ceilings
+- constraint integrity criteria
+- mission adequacy criteria
+- refusal、delay、cessationが生むsecondary harms
+- contestability、review、remedy
+- unresolved dissent and representation limits
+- validity and review triggers
+
+`constraint_integrity`と`mission_adequacy`を別々に評価します。常に停止するsystemを、missionを果たしていないのにresilientと判定しません。
+
 ### MissionSpec
 
 守る対象をagentの稼働ではなくstakeholder outcomeとして記述します。
@@ -38,9 +57,9 @@ Missionや業務上のrisk appetiteより上位の制約です。
 - sacrifice decisions and priority rules
 - review and expiry
 
-### ActionProfile
+### TransactionalActionProfile
 
-外部副作用を持つactionの意味を定義します。
+これはUniversal Coreではなく、外部状態をcommitするworkflow向けの最初のDomain Profileです。外部副作用を持つactionの意味を定義します。
 
 - stable action ID
 - required authority
@@ -130,40 +149,65 @@ Attestationには次を含めます。
 - expected and unintended effects
 - follow-up measurement
 
-## Clause effect classes
+## Domain profiles
 
-すべての条項へ実効性classを付けます。
+Universal Coreをdomain固有のfailure semanticsへ具体化します。
 
-| Class | Meaning |
-|---|---|
-| `ENFORCEABLE` | policy enforcement pointで決定的に強制できる |
-| `OBSERVABLE` | 独立したsourceまたは外部状態から確認できる |
-| `EXERCISABLE` | 限定条件下のexerciseで検証できる |
-| `ASSERTED` | ownerによる宣言であり、自動検証されていない |
-| `UNSUPPORTED` | 現在の構成では保証・観測できない |
+| Profile | Primary concerns | Status |
+|---|---|---|
+| Transactional Action | commit、idempotency、external effect、reconciliation、compensation | v0alpha |
+| Knowledge Work | epistemic drift、source quality、deskilling、longitudinal correction | conceptual |
+| Human Decision Support | distributional harm、contestability、automation bias、appeal | conceptual |
+| Physical / Safety-Critical | physical hazard、safe state、certified control、human factors | out of implementation scope |
 
-Critical claimが`ASSERTED`または`UNSUPPORTED`の場合は、少なくとも明示的なwarningとrisk acceptanceを要求します。
+Domainごとにschemaとrunnerを共有できるとは仮定しません。共有するのはUniversal Coreのclaim、accountability、uncertainty、evidence、learning semanticsです。
 
-## Runtime epistemic state
+## DelegationResilienceProfile v0alpha
 
-外部actionの結果を二値化しません。
+Transactional Action向けのaggregate rootは、versioned artifactへの参照をまとめます。
 
 ```text
-NOT_STARTED
-PREPARED
-COMMITTING
-CONFIRMED_SUCCEEDED
-CONFIRMED_FAILED
-OUTCOME_UNKNOWN
-PARTIALLY_EXECUTED
-COMPENSATED
-IRREVERSIBLY_EXECUTED
+DelegationResilienceProfile
+├─ exactly 1 MissionSpec
+├─ exactly 1 AcceptabilityDecision
+├─ 1..n TransactionalActionProfiles
+├─ 1..n DelegationGrants
+├─ 1..n RecoveryClaims
+├─ exactly 1 EvidenceProfile
+├─ 0..n ExerciseSpecs
+└─ 0..n Attestation references
+```
+
+実測値をprofileへ書き戻しません。Inline artifactはstable IDとversionを持ち、aggregate profileをcanonicalizeしてcontent digestを作ります。Attestationは評価したprofile digestを参照します。具体形式は[Transactional Action Profile](../profiles/transactional-action/README.md)で定義します。
+
+## Assurance mechanisms and disposition
+
+`ENFORCEABLE / OBSERVABLE / EXERCISABLE`は排他的classではありません。一つのclaimを複数mechanismで支えられます。
+
+| Axis | Values |
+|---|---|
+| assurance mechanisms | `ENFORCEABLE`、`OBSERVABLE`、`EXERCISABLE`の集合 |
+| support status | `ASSERTED`、`SUPPORTED`、`CONTRADICTED`、`UNKNOWN` |
+| deployment disposition | `PERMITTED`、`PERMITTED_WITH_ACCEPTANCE`、`PROHIBITED` |
+
+非交渉制約が`SUPPORTED`でない場合、またはcontradicting evidenceがある場合の既定値は`PROHIBITED`です。risk acceptanceの可否は、制約ごとに明示します。
+
+## Runtime state
+
+Intent、attempt、knowledge、external effect、reconciliation、compensationは別の状態機械です。完全な定義は[State Model](state-model.md)を参照してください。
+
+```text
+intent:         REGISTERED → PREPARED → AUTHORIZED → COMMIT_REQUESTED → CLOSED
+attempt:        STARTED → ACKNOWLEDGED | TIMED_OUT | ABORTED
+epistemic:      UNKNOWN | CONFIRMED_SUCCEEDED | CONFIRMED_FAILED | PARTIAL
+external:       NONE | APPLIED | PARTIALLY_APPLIED | REVERSED | COMPENSATED
+reconciliation: PENDING | MATCHED | MISMATCHED | SOURCE_UNAVAILABLE
 ```
 
 基本規則は次の通りです。
 
-- timeoutは`CONFIRMED_FAILED`ではなく`OUTCOME_UNKNOWN`。
-- `OUTCOME_UNKNOWN`をblind retryしない。
+- timeoutは`CONFIRMED_FAILED`ではなくepistemic `UNKNOWN`。
+- epistemic `UNKNOWN`をblind retryしない。
 - external reconciliationを先に行う。
 - unknownの間はimpact reservationを解放しない。
 - idempotencyのない不可逆actionはautomatic retryしない。

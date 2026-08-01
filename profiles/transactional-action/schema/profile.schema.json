@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DelegationResilienceProfile for Transactional Action",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "const": "delegation-resilience.org/v0alpha1" },
+    "kind": { "const": "DelegationResilienceProfile" },
+    "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domainProfile", "mission", "acceptabilityDecision", "actions", "delegationGrants", "recoveryClaims", "evidenceProfile", "exerciseScenarios"],
+      "properties": {
+        "domainProfile": { "const": "transactional-action/v0alpha1" },
+        "mission": { "$ref": "mission.schema.json" },
+        "acceptabilityDecision": { "$ref": "acceptability-decision.schema.json" },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "action-profile.schema.json" }
+        },
+        "delegationGrants": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "delegation-grant.schema.json" }
+        },
+        "recoveryClaims": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "recovery-claim.schema.json" }
+        },
+        "evidenceProfile": { "$ref": "evidence-profile.schema.json" },
+        "exerciseScenarios": {
+          "type": "array",
+          "items": { "$ref": "exercise.schema.json" }
+        },
+        "attestationRefs": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/artifactReference" }
+        }
+      }
+    }
+  }
+}

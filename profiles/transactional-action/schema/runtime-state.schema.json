@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TransactionalActionRuntimeState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intentId", "intentState", "attempts", "epistemicOutcome", "externalEffect", "reconciliationState", "compensationState", "observedAt"],
+  "properties": {
+    "intentId": { "type": "string", "minLength": 1 },
+    "intentState": { "$ref": "common.schema.json#/$defs/intentState" },
+    "attempts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["attemptId", "state"],
+        "properties": {
+          "attemptId": { "type": "string", "minLength": 1 },
+          "state": { "$ref": "common.schema.json#/$defs/attemptState" }
+        }
+      }
+    },
+    "epistemicOutcome": { "$ref": "common.schema.json#/$defs/epistemicOutcome" },
+    "externalEffect": { "$ref": "common.schema.json#/$defs/externalEffect" },
+    "reconciliationState": { "$ref": "common.schema.json#/$defs/reconciliationState" },
+    "compensationState": { "$ref": "common.schema.json#/$defs/compensationState" },
+    "observedAt": { "type": "string", "format": "date-time" }
+  }
+}

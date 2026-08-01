@@ -19,10 +19,18 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 - [ ] ManifestoとReference Model v0.1への外部review
 - [ ] terminology、non-goals、anti-claimsの確定
-- [ ] Mission/Recovery profileのillustrative format
-- [ ] scenario taxonomyとevidence envelopeのdraft
+- [x] Universal CoreとTransactional Action Profileの分離
+- [x] `AcceptabilityDecision`と二軸の評価model
+- [x] `DelegationResilienceProfile v0alpha1`のJSON Schema
+- [x] intent、attempt、epistemic outcome、external effect、reconciliation、compensationの状態分離
+- [x] machine-readable Refund profileの初期instance
+- [x] profile内参照graphとcore assurance semanticsのvalidator
+- [x] exercise mode、実測条件、証拠強度を持つAttestation schema
+- [ ] canonicalizationとdigestのreference implementation
+- [ ] scenario taxonomyとevidence envelopeの外部review
+- [ ] AWS/NIST/ISOとのclaim-level差分表のreview
 - [ ] OrgForge reviewer-outage exerciseの設計
-- [ ] 非codingのreference workflowを一つ選択
+- [x] 非codingの最初のreference workflowとしてRefundを選択
 
 ### Discovery gate
 
@@ -40,9 +48,10 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 ### Build
 
+- [ ] v0alpha validatorのdependency・digest・invalidation lint rules
 - [ ] local deterministic exercise runner
 - [ ] fake model/tool/approver/evidence sink
-- [ ] action outcomeの`OUTCOME_UNKNOWN`とexternal reconciliation
+- [ ] epistemic `UNKNOWN`とexternal reconciliation
 - [ ] capability-specific degradation
 - [ ] fallback qualification
 - [ ] signed exercise attestationとevidence packet
@@ -76,11 +85,10 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 ### Open v0.x
 
-- [ ] Mission/Recovery profile format
-- [ ] ActionProfile and epistemic outcome model
-- [ ] scenario DSL
-- [ ] local runner
-- [ ] evidence envelope
+- [ ] design-partner evidenceを反映したprofile/schema revision
+- [ ] stable scenario DSL
+- [ ] portable local runner
+- [ ] versioned evidence envelope
 - [ ] adapter SPI
 - [ ] conformance and negative test corpus
 

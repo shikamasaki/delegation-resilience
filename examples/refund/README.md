@@ -22,23 +22,46 @@
 
 ## Recovery claim
 
-modelまたはpolicy serviceが停止した場合、read-only調査は継続できますが、新規返金commitを停止します。15分以内にhuman queueへ切り替え、結果不明の返金を再実行する前にprovider側の状態を照合します。
+Recoveryを次の四段階で評価します。
+
+- `contain`: modelまたはpolicy serviceが停止したら、新規返金commitを止め、boundedなread-only調査だけを継続する。
+- `handover`: 15分以内に、intent、evidence、authority status、known unknownsを伴ってhuman queueへ引き継ぐ。
+- `recover`: 正当な要求を24時間以内に解決し、backlogを許容範囲内に保ち、二重返金を発生させない。
+- `revalidate`: unknown actionを外部照合し、policy、grant、connector、fallbackを再検証してから自動処理を再開する。
+
+Queueへ移しただけではrecoveryとみなしません。[Machine-readable profile](profile.yaml)がこのclaimと初期exerciseを定義します。
+
+この例ではbacklog上限100件、24時間のoperator coverage、毎時20件のmanual capacity、provider APIの4時間以内の復旧を明示的な仮定にしています。いずれも未実証なので、claimは`ASSERTED / PROHIBITED`です。仮定を隠して一般的なprovider outageへの回復を主張しません。
 
 ## Initial exercises
 
-1. 返金成功後、agentがresponseを受け取る前にworkerが停止する。
-2. 承認後、commit前にdelegationが取り消される。
-3. fallbackへ切り替えたが、結果照会権限が不足している。
-4. human approverが不在でhandover SLAを超過する。
-5. evidence sinkが停止する。
-6. primaryとfallbackが同じIdP停止の影響を受ける。
+実証目的を混ぜず、次の四つへ分けます。
+
+1. `Deterministic test`: response loss、idempotency、revocation、reconciliation、fencing。
+2. `Shared-fate test`: IdP、policy、provider status API、operator channelの共通障害。
+3. `Facilitated human drill`: 15分handover、必要情報、実権限、queue capacity、24時間mission recovery。
+4. `Baseline comparison`: 通常retry実装との二重実行数、unknown滞留時間、回復時間、operator workload比較。
+
+[Machine-readable profile](profile.yaml)では、各scenarioに初期backlog、毎時arrival、fault継続時間、operator数と能力、shared dependency、response-loss件数、固定random seedを宣言します。未宣言のloadへ結果を一般化しません。
 
 ## Expected observations
 
 - 二重返金が発生しない。
-- response lossは`OUTCOME_UNKNOWN`になる。
+- response lossはepistemic `UNKNOWN`になる。
 - external reconciliation前にautomatic retryしない。
 - stale grantではcommitできない。
 - read、propose、commitが別々に縮退する。
 - human takeoverの時間、情報、権限不足を記録する。
 - exercise結果にscope、system version、残存不確実性を付ける。
+
+## Comparative experiment
+
+同じfault scheduleを、profile-aware workflowと通常のretry実装へ適用します。
+
+- duplicate refunds
+- epistemic `UNKNOWN`の滞留時間
+- time to contain、handover、recover
+- operator workload
+- 既存log/evalでは分からなかったmaterial gap
+
+を比較し、単にscenarioをpassしたかではなく、回復設計が実際に差を生むかを検証します。

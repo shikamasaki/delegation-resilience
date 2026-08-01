@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TransactionalActionProfile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "actionId", "sideEffectClass", "requiredAuthority", "nativeIdempotency", "irreversiblePoint", "outcomeProbe", "compensation", "retryClass"],
+  "properties": {
+    "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+    "actionId": { "type": "string", "minLength": 1 },
+    "sideEffectClass": {
+      "enum": ["read_only", "proposal", "transactional", "communication"]
+    },
+    "requiredAuthority": { "type": "string", "minLength": 1 },
+    "nativeIdempotency": { "type": "boolean" },
+    "idempotencyDomain": { "type": "string" },
+    "irreversiblePoint": { "type": "string", "minLength": 1 },
+    "outcomeProbe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "authoritativeSource"],
+      "properties": {
+        "available": { "type": "boolean" },
+        "authoritativeSource": { "type": "string" }
+      }
+    },
+    "compensation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification"],
+      "properties": {
+        "classification": { "enum": ["not_required", "reversible", "compensable", "irreversible", "unknown"] },
+        "actionId": { "type": "string" },
+        "window": { "type": "string" }
+      }
+    },
+    "retryClass": { "enum": ["safe", "idempotent_only", "reconcile_before_retry", "never_automatic"] }
+  }
+}

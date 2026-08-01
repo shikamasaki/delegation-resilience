@@ -47,6 +47,17 @@ AIへ委譲できるものは、主にtask、限定されたauthority、decision
 
 安全・権利・不可逆な危害を、消費可能なerror budgetとして扱いません。
 
+## Acceptability requires a legitimate decision
+
+「許容可能」は、mission ownerが一方的に宣言できる性質ではありません。誰が利益を得て誰が負担するか、影響を受ける当事者がどう参加したか、どの代替案と比較したか、異議申立てと救済があるかを記録します。
+
+評価は少なくとも次を分けます。
+
+- `constraint_integrity`: 法令・権利・安全上の限界を守ったか
+- `mission_adequacy`: 必要最低限の成果を実際に提供したか
+
+これにより、常に停止するsystemや、組織外へ損害を転嫁するsystemをresilientと呼ぶことを避けます。
+
 ## Recovery includes refusal and cessation
 
 レジリエンスは常時稼働を意味しません。状況によっては、次が正しい成果です。

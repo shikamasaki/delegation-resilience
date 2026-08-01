@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AcceptabilityDecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "decisionOwner", "approvers", "affectedPartyParticipation", "baselines", "constitutionalConstraints", "harmCeilings", "criteria", "contestability", "validUntil", "reviewTriggers"],
+  "properties": {
+    "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+    "decisionOwner": { "$ref": "common.schema.json#/$defs/identity" },
+    "approvers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "common.schema.json#/$defs/identity" }
+    },
+    "affectedPartyParticipation": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["party", "method", "limitations"],
+        "properties": {
+          "party": { "type": "string", "minLength": 1 },
+          "method": { "type": "string", "minLength": 1 },
+          "limitations": { "type": "string" }
+        }
+      }
+    },
+    "baselines": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "constitutionalConstraints": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["constraintId", "statement", "source", "deploymentRule"],
+        "properties": {
+          "constraintId": { "type": "string", "minLength": 1 },
+          "statement": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "minLength": 1 },
+          "deploymentRule": { "const": "prohibit_if_unsupported" }
+        }
+      }
+    },
+    "harmCeilings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["affectedParty", "harm", "ceiling", "waiverPolicy"],
+        "properties": {
+          "affectedParty": { "type": "string", "minLength": 1 },
+          "harm": { "type": "string", "minLength": 1 },
+          "ceiling": { "type": "string", "minLength": 1 },
+          "waiverPolicy": { "enum": ["not_waivable", "formally_waivable"] }
+        }
+      }
+    },
+    "criteria": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraintIntegrity", "missionAdequacy"],
+      "properties": {
+        "constraintIntegrity": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "missionAdequacy": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "secondaryHarms": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "contestability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel", "reviewOwner", "remedy"],
+      "properties": {
+        "channel": { "type": "string", "minLength": 1 },
+        "reviewOwner": { "$ref": "common.schema.json#/$defs/identity" },
+        "remedy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "unresolvedDissent": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "validUntil": { "type": "string", "format": "date-time" },
+    "reviewTriggers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

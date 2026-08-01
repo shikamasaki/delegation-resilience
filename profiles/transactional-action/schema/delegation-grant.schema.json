@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DelegationGrant",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "grantId", "delegator", "delegatee", "missionRef", "actionRefs", "validFrom", "validUntil", "policyGeneration", "revocationConditions", "subdelegation"],
+  "properties": {
+    "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+    "grantId": { "type": "string", "minLength": 1 },
+    "delegator": { "$ref": "common.schema.json#/$defs/identity" },
+    "delegatee": { "$ref": "common.schema.json#/$defs/identity" },
+    "missionRef": { "type": "string", "minLength": 1 },
+    "actionRefs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "quantitativeLimits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dimension", "operator", "value", "unit"],
+        "properties": {
+          "dimension": { "type": "string", "minLength": 1 },
+          "operator": { "enum": ["max", "min", "exact"] },
+          "value": { "type": ["number", "integer", "string"] },
+          "unit": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "approvalConditions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "validFrom": { "type": "string", "format": "date-time" },
+    "validUntil": { "type": "string", "format": "date-time" },
+    "policyGeneration": { "type": "string", "minLength": 1 },
+    "revocationConditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "subdelegation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "maxDepth", "scopeNarrowingRequired"],
+      "properties": {
+        "allowed": { "type": "boolean" },
+        "maxDepth": { "type": "integer", "minimum": 0 },
+        "scopeNarrowingRequired": { "type": "boolean" }
+      }
+    }
+  }
+}

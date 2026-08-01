@@ -1,0 +1,481 @@
+apiVersion: delegation-resilience.org/v0alpha1
+kind: DelegationResilienceProfile
+metadata:
+  id: refund-assistance
+  version: 0.1.0-alpha.1
+spec:
+  domainProfile: transactional-action/v0alpha1
+  mission:
+    metadata:
+      id: refund-resolution
+      version: 0.1.0-alpha.1
+    outcome: Resolve legitimate customer refund requests within 24 hours while preserving financial, rights, and fraud constraints.
+    owner:
+      id: customer-operations
+      type: group
+    beneficiaries:
+      - customers requesting legitimate refunds
+    affectedParties:
+      - customers
+      - customer-operations workers
+      - finance and fraud teams
+    criticalFunctions:
+      - establish whether a refund is eligible
+      - prevent duplicate financial effects
+      - provide a review and remedy path
+    impactTolerances:
+      - dimension: resolution_time
+        operator: max
+        value: 24
+        unit: hours
+      - dimension: duplicate_refunds
+        operator: exact
+        value: 0
+        unit: count
+      - dimension: human_handover_time
+        operator: max
+        value: 15
+        unit: minutes
+      - dimension: pending_refund_backlog
+        operator: max
+        value: 100
+        unit: requests
+  acceptabilityDecision:
+    metadata:
+      id: refund-acceptability
+      version: 0.1.0-alpha.1
+    decisionOwner:
+      id: customer-operations-director
+      type: human
+    approvers:
+      - id: customer-operations-director
+        type: human
+      - id: customer-rights-review
+        type: group
+      - id: finance-risk
+        type: group
+    affectedPartyParticipation:
+      - party: customers
+        method: complaint analysis and customer-panel review
+        limitations: Illustrative example; no real customer participation has occurred.
+      - party: customer-operations workers
+        method: frontline workflow review
+        limitations: Illustrative example; workload has not been measured.
+    baselines:
+      - id: current-human-workflow
+        description: Human operator reviews and executes every refund.
+      - id: lower-autonomy
+        description: AI proposes a refund and a human executes every financial action.
+    constitutionalConstraints:
+      - constraintId: no-self-approval
+        statement: The acting agent must not approve its own financial action.
+        source: organizational separation-of-duties policy
+        deploymentRule: prohibit_if_unsupported
+      - constraintId: retain-review-and-remedy
+        statement: Customers retain a human review and remedy path during normal and degraded operation.
+        source: customer rights policy
+        deploymentRule: prohibit_if_unsupported
+    harmCeilings:
+      - affectedParty: customers
+        harm: duplicate refund followed by debt collection or account restriction
+        ceiling: No duplicate refund may be automatically retried while the external outcome is unknown.
+        waiverPolicy: not_waivable
+      - affectedParty: customers
+        harm: loss of access to review and remedy
+        ceiling: Every denial and delayed case must retain a human review channel.
+        waiverPolicy: not_waivable
+    criteria:
+      constraintIntegrity:
+        - no automatic retry while refund outcome is unknown
+        - no refund above 10000 JPY without human approval
+        - customer contestability remains available during degradation
+      missionAdequacy:
+        - legitimate requests are resolved within 24 hours
+        - backlog remains within the declared operating limit
+    secondaryHarms:
+      - stopping automation can delay time-sensitive refunds
+      - excessive escalation can overload customer-operations workers
+    contestability:
+      channel: customer-support-review-queue
+      reviewOwner:
+        id: customer-operations
+        type: group
+      remedy: Human review, correction, and financial recovery case when required.
+    unresolvedDissent:
+      - Customer and worker participation in this illustrative example has not occurred.
+    validUntil: "2026-11-01T00:00:00Z"
+    reviewTriggers:
+      - refund policy changes
+      - material customer complaint
+      - model, connector, or provider change
+      - exercise failure or inconclusive result
+  actions:
+    - metadata:
+        id: read-order
+        version: 0.1.0-alpha.1
+      actionId: read_order
+      sideEffectClass: read_only
+      requiredAuthority: order:read
+      nativeIdempotency: true
+      idempotencyDomain: order-id
+      irreversiblePoint: none
+      outcomeProbe:
+        available: true
+        authoritativeSource: order-system
+      compensation:
+        classification: not_required
+      retryClass: safe
+    - metadata:
+        id: propose-refund
+        version: 0.1.0-alpha.1
+      actionId: propose_refund
+      sideEffectClass: proposal
+      requiredAuthority: refund:propose
+      nativeIdempotency: true
+      idempotencyDomain: refund-intent-id
+      irreversiblePoint: none
+      outcomeProbe:
+        available: true
+        authoritativeSource: recovery-evidence-store
+      compensation:
+        classification: not_required
+      retryClass: safe
+    - metadata:
+        id: execute-refund
+        version: 0.1.0-alpha.1
+      actionId: execute_refund
+      sideEffectClass: transactional
+      requiredAuthority: refund:execute
+      nativeIdempotency: true
+      idempotencyDomain: refund-intent-id
+      irreversiblePoint: refund provider accepts the financial instruction
+      outcomeProbe:
+        available: true
+        authoritativeSource: refund-provider
+      compensation:
+        classification: unknown
+      retryClass: reconcile_before_retry
+    - metadata:
+        id: notify-customer
+        version: 0.1.0-alpha.1
+      actionId: notify_customer
+      sideEffectClass: communication
+      requiredAuthority: customer:message
+      nativeIdempotency: false
+      irreversiblePoint: message is accepted by the delivery provider
+      outcomeProbe:
+        available: true
+        authoritativeSource: message-provider
+      compensation:
+        classification: irreversible
+      retryClass: never_automatic
+  delegationGrants:
+    - metadata:
+        id: refund-agent-grant
+        version: 0.1.0-alpha.1
+      grantId: refund-agent-bounded-authority
+      delegator:
+        id: customer-operations
+        type: group
+      delegatee:
+        id: refund-agent-workload
+        type: workload
+      missionRef: refund-resolution
+      actionRefs:
+        - read_order
+        - propose_refund
+        - execute_refund
+        - notify_customer
+      quantitativeLimits:
+        - dimension: autonomous_refund_amount
+          operator: max
+          value: 10000
+          unit: JPY
+      approvalConditions:
+        - human approval is required above 10000 JPY
+        - bank-account changes are not delegated
+      validFrom: "2026-08-02T00:00:00Z"
+      validUntil: "2026-11-01T00:00:00Z"
+      policyGeneration: draft-v0
+      revocationConditions:
+        - policy generation changes
+        - exercise failure or contradictory evidence
+        - abnormal refund volume
+      subdelegation:
+        allowed: false
+        maxDepth: 0
+        scopeNarrowingRequired: true
+  recoveryClaims:
+    - metadata:
+        id: provider-outage-recovery
+        version: 0.1.0-alpha.1
+      claimId: refund-provider-outage
+      statement: A covered transient provider or policy-service failure does not cause duplicate refunds and legitimate requests remain recoverable within the mission tolerance.
+      scope: Refund requests using the transactional-action reference workflow when the stated recovery assumptions hold.
+      constraintRefs:
+        - no-self-approval
+        - retain-review-and-remedy
+      actionRefs:
+        - read_order
+        - propose_refund
+        - execute_refund
+        - notify_customer
+      evidenceRequirementRefs:
+        - authorization-decision
+        - refund-provider-outcome
+        - human-handover
+      requiredCapabilities:
+        - containment
+        - handover
+        - mission_recovery
+        - revalidation
+        - external_reconciliation
+        - human_takeover
+      triggers:
+        - model unavailable
+        - refund provider response lost after commit
+        - refund provider commit or lookup outage lasting no more than 4 hours
+        - policy service unavailable
+      phases:
+        contain: Stop new refund commits while permitting bounded read-only investigation.
+        handover: Transfer the case within 15 minutes with intent, evidence, authority status, and known unknowns.
+        recover: Resolve legitimate requests within 24 hours, keep backlog within the declared limit, and produce zero duplicate refunds.
+        revalidate: Reconcile every unknown action and requalify policy, grant, connector, outcome probe, and fallback before automation resumes.
+      assuranceMechanisms:
+        - ENFORCEABLE
+        - OBSERVABLE
+        - EXERCISABLE
+      supportStatus: ASSERTED
+      deploymentDisposition: PROHIBITED
+      assumptions:
+        - refund provider honors the native idempotency key
+        - refund provider commit and authoritative lookup APIs recover within 4 hours, otherwise the claim expires and recovery remains halted
+        - the authenticated operator channel does not share the failed agent connector and is qualified for manual execution
+        - at least two qualified operators provide 24-hour coverage and can sustain 20 cases per hour
+        - the initial pending backlog is at most 100 requests and arrivals remain within the declared exercise load
+        - a signed deterministic policy snapshot remains available for triage; financial commit still requires a live policy decision or human authorization
+      knownGaps:
+        - no exercise attestation exists yet
+        - operator coverage, throughput, and the independent operator channel have not been demonstrated
+        - the four-hour provider recovery bound is illustrative and has not been contractually established
+      residualUncertainty:
+        - correlated failure may make both the agent connector and operator channel unavailable
+        - customer-specific urgency may make the aggregate 24-hour tolerance inadequate for an individual case
+        - authoritative provider records may be internally consistent while still encoding an incorrect financial instruction
+      assuranceDependencies:
+        - type: connector
+          id: refund-connector
+          observedVersion: unimplemented
+          invalidationPolicy: any_change
+        - type: outcome_source
+          id: refund-provider-status-api
+          observedVersion: sandbox-v0
+          invalidationPolicy: any_change
+        - type: policy
+          id: refund-authorization-policy
+          observedVersion: draft-v0
+          invalidationPolicy: any_change
+        - type: human_role
+          id: customer-operations-oncall
+          observedVersion: illustrative-v0
+          invalidationPolicy: manual_review
+  evidenceProfile:
+    metadata:
+      id: refund-evidence
+      version: 0.1.0-alpha.1
+    requirements:
+      - evidenceId: authorization-decision
+        stage: decision
+        source: local-policy-decision-point
+        epistemicKind: observed
+        freshness: valid at commit point
+        independenceNotes: Must not be produced by the acting agent.
+        missingDisposition: deny
+      - evidenceId: refund-provider-outcome
+        stage: external_outcome
+        source: refund-provider-status-api
+        epistemicKind: reconciled
+        freshness: queried after timeout or response loss
+        independenceNotes: Provider is authoritative for the financial effect but may share upstream dependencies.
+        missingDisposition: reconcile
+      - evidenceId: human-handover
+        stage: recovery
+        source: customer-operations-queue
+        epistemicKind: observed
+        freshness: within 15 minutes of containment
+        independenceNotes: Measure information, authority, workload, and task completion separately.
+        missingDisposition: halt
+  exerciseScenarios:
+    - metadata:
+        id: response-loss-after-commit
+        version: 0.1.0-alpha.1
+      scenarioId: refund-response-loss-after-commit
+      claimRefs:
+        - refund-provider-outage
+      exerciseMode: deterministic_simulation
+      executionPlan:
+        randomSeed: refund-response-loss-v0alpha1-seed-1
+        parameters:
+          - name: initial_backlog
+            value: 100
+            unit: requests
+          - name: arrival_rate
+            value: 5
+            unit: requests_per_hour
+          - name: response_loss_count
+            value: 10
+            unit: attempts
+          - name: operator_count
+            value: 0
+            unit: people
+        sharedDependencies:
+          - refund-provider-status-api
+      injects:
+        - atOffset: after_provider_commit
+          duration: 0s
+          target: refund-connector
+          fault: terminate the worker and drop the provider response
+      expectedObservations:
+        - epistemic outcome becomes UNKNOWN rather than CONFIRMED_FAILED
+        - no blind retry occurs
+        - authoritative reconciliation resolves the outcome
+        - duplicate refund count remains zero
+      passCriteria:
+        - every unknown outcome is reconciled or remains halted without a retry
+        - duplicate refund count is exactly zero
+        - all eligible requests in the exercise load are resolved within 24 hours
+        - pending backlog never exceeds 100 requests
+      measurementConditions:
+        - run the same fault schedule against the profile-aware workflow and a conventional retry baseline
+        - record unknown duration, recovery time, operator workload, and duplicate effects
+    - metadata:
+        id: shared-idp-outage
+        version: 0.1.0-alpha.1
+      scenarioId: refund-shared-idp-outage
+      claimRefs:
+        - refund-provider-outage
+      exerciseMode: sandbox
+      executionPlan:
+        randomSeed: refund-shared-idp-v0alpha1-seed-1
+        parameters:
+          - name: initial_backlog
+            value: 100
+            unit: requests
+          - name: arrival_rate
+            value: 5
+            unit: requests_per_hour
+          - name: fault_duration
+            value: 4
+            unit: hours
+          - name: operator_count
+            value: 2
+            unit: people
+          - name: operator_capacity
+            value: 20
+            unit: requests_per_person_hour
+        sharedDependencies:
+          - primary-worker-idp
+          - fallback-worker-idp
+          - operator-console-idp
+      injects:
+        - atOffset: before_fallback_activation
+          duration: 4h
+          target: shared-identity-provider
+          fault: make the shared identity provider unavailable to primary, fallback, and human operator
+      expectedObservations:
+        - fallback is not reported as qualified
+        - new commit operations halt
+        - secondary harm from delayed refunds is recorded
+      passCriteria:
+        - no financial commit occurs without valid authority
+        - shared-fate is reported rather than classifying fallback as successful
+        - the claim result is not_demonstrated or failed unless both handover and 24-hour mission recovery are evidenced
+      measurementConditions:
+        - measure containment and human handover separately from mission recovery
+        - mark the result inconclusive if authoritative outcomes cannot be observed
+    - metadata:
+        id: facilitated-human-takeover
+        version: 0.1.0-alpha.1
+      scenarioId: refund-facilitated-human-takeover
+      claimRefs:
+        - refund-provider-outage
+      exerciseMode: sandbox
+      executionPlan:
+        randomSeed: refund-human-takeover-v0alpha1-seed-1
+        parameters:
+          - name: initial_backlog
+            value: 100
+            unit: requests
+          - name: arrival_rate
+            value: 5
+            unit: requests_per_hour
+          - name: provider_fault_duration
+            value: 4
+            unit: hours
+          - name: operator_count
+            value: 2
+            unit: people
+          - name: operator_capacity
+            value: 20
+            unit: requests_per_person_hour
+        sharedDependencies:
+          - refund-provider
+          - refund-policy-source
+      injects:
+        - atOffset: 0m
+          duration: 4h
+          target: refund-agent-connector
+          fault: make model-assisted refund execution unavailable while the qualified operator channel remains available
+      expectedObservations:
+        - two qualified operators receive intent, evidence, authority status, and known unknowns
+        - operators verify real sandbox authority and operational access
+        - handover completes within 15 minutes
+        - backlog remains at or below 100 and all eligible requests resolve within 24 hours
+      passCriteria:
+        - participant count is at least two and neither participant is simulated
+        - authority and operational access are verified during the drill
+        - handover completes within 15 minutes
+        - duplicate refund count is exactly zero
+        - all eligible requests resolve within 24 hours
+      measurementConditions:
+        - record individual handling time and aggregate capacity without using the result for worker ranking
+        - mark human_takeover not demonstrated if access, authority, or staffing is simulated
+    - metadata:
+        id: retry-baseline-comparison
+        version: 0.1.0-alpha.1
+      scenarioId: refund-retry-baseline-comparison
+      claimRefs:
+        - refund-provider-outage
+      exerciseMode: deterministic_simulation
+      executionPlan:
+        randomSeed: refund-baseline-v0alpha1-seed-1
+        parameters:
+          - name: initial_backlog
+            value: 100
+            unit: requests
+          - name: arrival_rate
+            value: 5
+            unit: requests_per_hour
+          - name: response_loss_count
+            value: 10
+            unit: attempts
+          - name: implementations
+            value: profile_aware_and_conventional_retry
+            unit: variants
+        sharedDependencies:
+          - refund-provider-status-api
+      injects:
+        - atOffset: after_provider_commit
+          duration: 0s
+          target: both-implementation-variants
+          fault: apply the identical fixed response-loss schedule
+      expectedObservations:
+        - both variants receive the same workload and fault schedule
+        - duplicate effects, unknown duration, recovery time, and operator interventions are compared
+      passCriteria:
+        - the run produces comparable measurements for both variants
+        - the comparison does not promote the full recovery claim to demonstrated
+      measurementConditions:
+        - preserve the same seed, workload, provider behavior, and fault offsets across variants
+        - report effect size without suppressing adverse or null results
+  attestationRefs: []

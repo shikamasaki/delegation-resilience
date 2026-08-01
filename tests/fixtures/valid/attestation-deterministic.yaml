@@ -1,0 +1,83 @@
+apiVersion: delegation-resilience.org/v0alpha1
+kind: ExerciseAttestation
+metadata:
+  id: synthetic-response-loss-attestation
+  version: 0.1.0-alpha.1
+evaluatedProfile:
+  uri: ../../../examples/refund/profile.yaml
+  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+scenarioRef: refund-response-loss-after-commit
+issuer:
+  id: synthetic-test-runner
+  type: workload
+issuedAt: "2026-08-02T00:11:00Z"
+validUntil: "2099-01-01T00:00:00Z"
+exerciseMode: deterministic_simulation
+startedAt: "2026-08-02T00:00:00Z"
+completedAt: "2026-08-02T00:10:00Z"
+systemUnderTest:
+  environment: synthetic-test-fixture
+  components:
+    - componentId: refund-runner
+      kind: workflow
+      version: fixture-v0
+actualConditions:
+  randomSeed: refund-response-loss-v0alpha1-seed-1
+  faultSchedule:
+    - faultId: response-loss-after-commit
+      target: refund-connector
+      startedAt: "2026-08-02T00:01:00Z"
+      completedAt: "2026-08-02T00:01:00Z"
+  workload:
+    - measurementId: workload-initial-backlog
+      metric: initial_backlog
+      value: 100
+      unit: requests
+    - measurementId: workload-arrival-rate
+      metric: arrival_rate
+      value: 5
+      unit: requests_per_hour
+  sharedDependencies:
+    - refund-provider-status-api
+humanParticipation:
+  mode: none
+  participantCount: 0
+  roles: []
+  authorityVerified: false
+  operationalAccessVerified: false
+  observations:
+    - No human takeover capability was exercised.
+claimResults:
+  - claimRef: refund-provider-outage
+    result: not_demonstrated
+    demonstratedCapabilities:
+      - external_reconciliation
+    measurementRefs:
+      - unknown-duration
+      - duplicate-refunds
+    evidenceRequirementRefs:
+      - refund-provider-outcome
+    notes: Synthetic fixture; it cannot demonstrate the human or end-to-end mission portions of the claim.
+measurements:
+  - measurementId: unknown-duration
+    metric: epistemic_unknown_duration
+    value: 3
+    unit: seconds
+    method: monotonic timestamps around authoritative reconciliation
+  - measurementId: duplicate-refunds
+    metric: duplicate_refund_count
+    value: 0
+    unit: count
+    method: authoritative provider outcome query
+evidence:
+  - evidenceObservationId: refund-provider-outcome-observation-001
+    evidenceRequirementRef: refund-provider-outcome
+    artifact:
+      uri: synthetic/evidence/refund-provider-outcome.json
+      digest: sha256:1111111111111111111111111111111111111111111111111111111111111111
+    observedAt: "2026-08-02T00:02:00Z"
+evidenceGaps:
+  - No qualified human participated.
+  - The 24-hour mission recovery window was not exercised.
+residualUncertainty:
+  - Synthetic provider behavior may differ from a production provider.

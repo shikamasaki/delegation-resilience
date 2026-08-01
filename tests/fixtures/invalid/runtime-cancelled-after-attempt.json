@@ -1,0 +1,15 @@
+{
+  "intentId": "refund-intent-003",
+  "intentState": "CANCELLED_PRE_COMMIT",
+  "attempts": [
+    {
+      "attemptId": "attempt-003",
+      "state": "TIMED_OUT"
+    }
+  ],
+  "epistemicOutcome": "UNKNOWN",
+  "externalEffect": "NONE",
+  "reconciliationState": "NOT_REQUIRED",
+  "compensationState": "NOT_REQUIRED",
+  "observedAt": "2026-08-02T00:15:00Z"
+}

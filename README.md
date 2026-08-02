@@ -111,13 +111,13 @@ Delegation Resilience Doctrine
 
 ## Status
 
-`incubating / v0alpha1 semantic kernel complete / v0alpha2 portable verification complete / assurance-graph v0alpha1 released / OrgForge graph export pending / real-world recovery not demonstrated`
+`incubating / v0alpha1 semantic kernel complete / v0alpha2 portable verification complete / assurance-graph v0alpha1 released / OrgForge graph export implemented / real-world recovery not demonstrated`
 
 v0alpha1のprofileとexercise semanticsは機能凍結し、v0alpha2では後方互換なportable verification layerを追加しています。現在のreference bundleは、DSSE envelopeと全subject bytesからなる同じpacket、verifier code/environment digest、評価時点、外部trust policy、consumer high-watermarkから同じ限定的な`VerificationResult`をofflineで再現します。これは独立認証ではありません。`PACKET_VERIFIED`はclaim supportやdeployment可否を意味しません。
 
 Assurance Graphは、v0alpha2 packetを置き換えない独立profileです。intent、attempt、external effect、evidence、attestation、claim、dependency、shared-fate、invalidationの関係を、元artifactのdigestとsource referenceへ束縛した派生artifactとして検証します。`GRAPH_VERIFIED`もrecovery capabilityの実証やauthorizationを意味せず、証拠不足・推論関係・shared-fateがあるclaimは`NOT_DEMONSTRATED`に留まります。
 
-Assurance Graph v0alpha1は`assurance-graph-v0alpha1.1`で正式固定済みです。OrgForgeからのGraph export統合と、現実世界のrecovery capability実証は未完了です。
+Assurance Graph v0alpha1は`assurance-graph-v0alpha1`で正式固定済みです。OrgForgeからのGraph export統合は実装済みですが、実地human drillと現実世界のrecovery capability実証は未完了です。
 
 ここで公開する語彙と形式は、現時点では国際標準、認証、規制適合を意味しません。少なくとも二つの異なる業務領域と複数の独立実装で有効性を確認するまでは、`standard`ではなく`working model`または`v0.x format`と呼びます。
 

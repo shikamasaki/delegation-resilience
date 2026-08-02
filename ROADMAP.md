@@ -17,10 +17,10 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 - v0alpha1 semantic kernel: complete
 - v0alpha2 portable verification foundation: complete and backward-compatible
-- Assurance Graph v0alpha1: released and fixed at `assurance-graph-v0alpha1.1`
+- Assurance Graph v0alpha1: released and fixed at `assurance-graph-v0alpha1`
 - Assurance Graph schema digest: `sha256:623e4c82c8814977455c91c7e6c838d692cd61fa481197f33db490ec68a85d18`
 - Assurance Graph verifier code digest: `sha256:a62ea481b1036266e631767f3270f7c2cac561271d84a22419882316d874e021`
-- OrgForge Assurance Graph export: pending; the current OrgForge adapter remains v0alpha2 packet-only
+- OrgForge Assurance Graph export: implemented as a one-way, source-bound adapter; recovery claims remain not demonstrated
 - Facilitated human drill: not demonstrated
 - Real-world recovery capability: not demonstrated
 

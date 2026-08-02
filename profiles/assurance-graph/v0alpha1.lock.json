@@ -2,7 +2,7 @@
   "apiVersion": "delegation-resilience.org/assurance-graph-lock/v0alpha1",
   "kind": "AssuranceGraphVerifierLock",
   "profile": "delegation-resilience.org/assurance-graph/v0alpha1",
-  "releaseTag": "assurance-graph-v0alpha1.1",
+  "releaseTag": "assurance-graph-v0alpha1",
   "verifierVersion": "0.1.0-alpha.1",
   "schemaPath": "profiles/assurance-graph/schema/assurance-graph.schema.json",
   "schemaDigest": "sha256:623e4c82c8814977455c91c7e6c838d692cd61fa481197f33db490ec68a85d18",

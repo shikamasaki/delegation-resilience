@@ -1,4 +1,4 @@
-# Assurance Graph profile v0alpha1
+# Assurance Graph profile v0alpha1 (released)
 
 The Assurance Graph is a derived, deterministic assurance artifact. It connects delegation intent,
 attempts, actors, capabilities, external effects, evidence, attestations, claims, dependencies,
@@ -16,3 +16,8 @@ does not alter the v0alpha2 transactional-action portable verifier or its packet
 The release lock is [v0alpha1.lock.json](v0alpha1.lock.json). Consumers should pin the
 `releaseTag`, `schemaDigest`, and `verifierCodeDigest`; the environment remains explicitly
 `not_pinned` in this release.
+
+The profile is independent from the v0alpha2 packet and portable verifier. OrgForge Graph export
+is implemented as a one-way derived adapter, and no human drill or real-world recovery capability is claimed. `GRAPH_VERIFIED` is
+only a deterministic graph verification result; it does not promote recovery claims to
+`SUPPORTED`, authorize execution, or approve deployment.

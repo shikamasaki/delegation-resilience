@@ -12,6 +12,25 @@ It is deliberately a profile separate from the Universal Core. The profile owns 
 and graph-specific verification; adapters such as OrgForge only translate their evidence into this
 format and cannot redefine what `supports`, `shares_fate_with`, or `invalidates` mean.
 
+The v0alpha1 endpoint semantics are intentionally closed:
+
+| Edge | From | To |
+| --- | --- | --- |
+| `attempts` | intent | attempt |
+| `uses` | attempt | capability, actor, dependency |
+| `produces` | attempt | external effect, evidence, artifact |
+| `observes` | attestation, exercise, evidence | evidence, external effect, attempt |
+| `reconciles` | attempt, evidence, attestation, exercise | external effect |
+| `supports` | evidence, attestation, exercise, artifact | claim |
+| `depends_on` | claim, attempt, exercise | dependency |
+| `invalidates` | dependency, evidence, attestation, artifact | claim, attestation |
+| `shares_fate_with` | dependency | dependency |
+| `hands_off_to` | attempt, actor, capability | actor, capability, attempt |
+| `produces_artifact` | exercise, attempt, attestation | artifact |
+
+Unknown endpoint combinations are rejected; adapters cannot use an existing edge name with a new
+meaning.
+
 ## Boundaries
 
 An execution graph describes what a runtime did: tasks, calls, retries, and control flow. An

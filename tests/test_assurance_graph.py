@@ -58,6 +58,30 @@ class AssuranceGraphTest(unittest.TestCase):
         self.assertTrue(any("duplicate edge" in item for item in result["errors"]))
         self.assertTrue(any("dangling to" in item for item in result["errors"]))
 
+    def test_invalid_endpoint_semantics_are_rejected(self):
+        graph = copy.deepcopy(self.graph)
+        graph["edges"][0]["type"] = "supports"
+        result = validate_graph(graph, artifact_root=self.artifact_root)
+        self.assertEqual("GRAPH_REJECTED", result["graphVerificationOutcome"])
+        self.assertTrue(any("invalid endpoint types" in item for item in result["errors"]))
+
+    def test_invalidated_attestation_weakens_related_claim(self):
+        graph = copy.deepcopy(self.graph)
+        graph["edges"] = [edge for edge in graph["edges"] if edge["type"] != "invalidates"]
+        graph["edges"].append({
+            "id": "edge:invalidates-attestation",
+            "type": "invalidates",
+            "from": "dependency:status-api",
+            "to": "attestation:refund-game-day",
+            "sourceRefs": ["src:refund-observation"],
+            "assurance": "observed",
+            "provenance": {"mode": "observed", "sourceRefs": ["src:refund-observation"]},
+        })
+        result = validate_graph(graph, artifact_root=self.artifact_root)
+        self.assertEqual("GRAPH_VERIFIED", result["graphVerificationOutcome"])
+        self.assertEqual("NOT_DEMONSTRATED", result["claimResults"][0]["verifiedSupport"])
+        self.assertIn("claim is invalidated", result["claimResults"][0]["reasons"])
+
     def test_digest_mismatch_and_strict_json_are_rejected(self):
         graph = copy.deepcopy(self.graph)
         graph["sourceArtifacts"][0]["digest"] = "sha256:" + "0" * 64

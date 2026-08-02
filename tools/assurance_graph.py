@@ -14,6 +14,22 @@ except ModuleNotFoundError:
     from schema_validation import schema_errors
 
 GRAPH_SCHEMA = "assurance-graph.schema.json"
+
+EDGE_ENDPOINT_TYPES = {
+    "attempts": ({"intent"}, {"attempt"}),
+    "uses": ({"attempt"}, {"capability", "actor", "dependency"}),
+    "produces": ({"attempt"}, {"external_effect", "evidence", "artifact"}),
+    "observes": ({"attestation", "exercise", "evidence"}, {"evidence", "external_effect", "attempt"}),
+    "reconciles": ({"attempt", "evidence", "attestation", "exercise"}, {"external_effect"}),
+    "supports": ({"evidence", "attestation", "exercise", "artifact"}, {"claim"}),
+    "depends_on": ({"claim", "attempt", "exercise"}, {"dependency"}),
+    "invalidates": ({"dependency", "evidence", "attestation", "artifact"}, {"claim", "attestation"}),
+    "shares_fate_with": ({"dependency"}, {"dependency"}),
+    "hands_off_to": ({"attempt", "actor", "capability"}, {"actor", "capability", "attempt"}),
+    "produces_artifact": ({"exercise", "attempt", "attestation"}, {"artifact"}),
+}
+
+
 def _error(errors: list[str], message: str) -> None:
     errors.append(message)
 
@@ -93,6 +109,12 @@ def validate_graph(
             _error(errors, f"edge[{edge_id}] has dangling from reference")
         if edge.get("to") not in node_index:
             _error(errors, f"edge[{edge_id}] has dangling to reference")
+        else:
+            allowed_from, allowed_to = EDGE_ENDPOINT_TYPES[edge.get("type", "")]
+            from_type = node_index.get(edge.get("from"), {}).get("type")
+            to_type = node_index.get(edge.get("to"), {}).get("type")
+            if from_type not in allowed_from or to_type not in allowed_to:
+                _error(errors, f"edge[{edge_id}] has invalid endpoint types: {from_type} -> {to_type}")
         _check_source_refs(edge, source_index, artifact_root, errors, f"edge[{edge_id}]")
     for source in source_index.values():
         if artifact_root is not None:
@@ -124,7 +146,8 @@ def validate_graph(
             reasons.append("support contains inferred or derived relations")
         if direct_dependencies & shared_fate:
             reasons.append("dependency shares fate with another dependency")
-        if claim_id in invalidated:
+        invalidated_support = any(edge.get("from") in invalidated for edge in supports)
+        if claim_id in invalidated or invalidated_support:
             reasons.append("claim is invalidated")
         status = "NOT_DEMONSTRATED"
         claim_results.append({"claimId": claim_id, "requestedStatus": claim.get("attributes", {}).get("status", "UNKNOWN"), "verifiedSupport": status, "reasons": sorted(reasons)})

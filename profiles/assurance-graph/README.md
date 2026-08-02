@@ -12,3 +12,7 @@ to `NOT_DEMONSTRATED` or stale dispositions.
 
 Use `tools/verify_assurance_graph.py` for runner-independent deterministic verification. This profile
 does not alter the v0alpha2 transactional-action portable verifier or its packet format.
+
+The release lock is [v0alpha1.lock.json](v0alpha1.lock.json). Consumers should pin the
+`releaseTag`, `schemaDigest`, and `verifierCodeDigest`; the environment remains explicitly
+`not_pinned` in this release.

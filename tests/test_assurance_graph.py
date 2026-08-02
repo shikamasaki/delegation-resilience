@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -8,6 +9,7 @@ import sys
 import unittest
 
 from tools.assurance_graph import canonical_graph_bytes, validate_graph
+from tools.assurance_graph_manifest import assurance_graph_code_digest
 from tools.data_loading import canonical_json_bytes, load_json_bytes
 from tools.schema_validation import schema_errors
 
@@ -29,6 +31,16 @@ class AssuranceGraphTest(unittest.TestCase):
         reasons = result["claimResults"][0]["reasons"]
         self.assertTrue(any("shares fate" in reason for reason in reasons))
         self.assertIn("claim is invalidated", reasons)
+
+    def test_release_lock_pins_schema_and_verifier(self):
+        lock = load_json_bytes((ROOT / "profiles/assurance-graph/v0alpha1.lock.json").read_bytes())
+        schema = ROOT / lock["schemaPath"]
+        self.assertEqual(
+            lock["schemaDigest"],
+            "sha256:" + hashlib.sha256(schema.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(lock["verifierCodeDigest"], assurance_graph_code_digest())
+        self.assertEqual(lock["environment"], "not_pinned")
 
     def test_canonical_graph_and_standalone_result_are_deterministic(self):
         first = canonical_graph_bytes(self.graph)

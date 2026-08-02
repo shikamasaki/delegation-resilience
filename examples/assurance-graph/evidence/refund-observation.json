@@ -1,0 +1,6 @@
+{
+  "event": "response_lost_then_reconciled",
+  "observedAt": "2026-08-03T00:00:00Z",
+  "externalEffect": "refund-effect-0001",
+  "source": "deterministic-simulation"
+}

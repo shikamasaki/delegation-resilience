@@ -21,15 +21,19 @@ SCHEMA_ROOT = (
     / "schema"
 )
 SCHEMA_BASE = "https://delegation-resilience.org/schemas/transactional-action/"
+SCHEMA_ROOTS = (
+    SCHEMA_ROOT,
+    pathlib.Path(__file__).resolve().parents[1] / "profiles" / "assurance-graph" / "schema",
+)
 
 
 @functools.lru_cache(maxsize=1)
 def _validators() -> dict[str, Draft202012Validator]:
     schemas: dict[str, dict[str, Any]] = {}
     registry = Registry()
-    for path in sorted(SCHEMA_ROOT.glob("*.json")):
+    for path in sorted((path for root in SCHEMA_ROOTS for path in root.glob("*.json"))):
         schema = load_json_bytes(path.read_bytes(), source=f"schema {path.name}")
-        schema["$id"] = SCHEMA_BASE + path.name
+        schema["$id"] = (SCHEMA_BASE if path.parent == SCHEMA_ROOT else "https://delegation-resilience.org/schemas/assurance-graph/") + path.name
         schemas[path.name] = schema
         registry = registry.with_resource(schema["$id"], Resource.from_contents(schema))
     return {

@@ -71,6 +71,8 @@ class PortableVerificationTest(unittest.TestCase):
     def test_golden_bundle_is_portably_verified_without_deployment_decision(self):
         result = self.verify()
         self.assertEqual("PACKET_VERIFIED", result["packetVerificationOutcome"])
+        self.assertEqual("VALID", result["checks"]["signature"])
+        self.assertEqual("TRUSTED", result["checks"]["issuerTrust"])
         self.assertEqual("CURRENT_RELATIVE_TO_SNAPSHOT", result["checks"]["freshness"])
         claim = result["claimResults"][0]
         self.assertEqual(["external_reconciliation"], claim["supportedCapabilities"])
@@ -332,6 +334,35 @@ class PortableVerificationTest(unittest.TestCase):
         result = self.verify()
         self.assertEqual("INVALID", result["checks"]["signature"])
         self.assertEqual("NOT_CHECKED", result["checks"]["issuerTrust"])
+        self.assertIn(
+            "not every required signed artifact proof was verified", result["errors"]
+        )
+
+    def test_duplicate_signed_artifact_digest_is_rejected(self):
+        bundle_envelope = json.loads((self.root / "bundle.dsse.json").read_text())
+        statement = json.loads(base64.b64decode(bundle_envelope["payload"]))
+        original = statement["predicate"]["supportingArtifacts"][0]
+        duplicate = copy.deepcopy(original)
+        duplicate["artifact"]["uri"] = "evidence/duplicate-provider-outcomes.json"
+        duplicate["proof"]["uri"] = "evidence/duplicate-provider-outcomes.dsse.json"
+        statement["predicate"]["supportingArtifacts"].append(duplicate)
+        for reference in (duplicate["artifact"], duplicate["proof"]):
+            source = self.root / original[
+                "artifact" if reference is duplicate["artifact"] else "proof"
+            ]["uri"]
+            target = self.root / reference["uri"]
+            target.write_bytes(source.read_bytes())
+            statement["subject"].append(
+                {
+                    "name": reference["uri"],
+                    "digest": {"sha256": reference["digest"].removeprefix("sha256:")},
+                }
+            )
+        self.resign_bundle(statement)
+        result = self.verify()
+        self.assertEqual("PACKET_REJECTED", result["packetVerificationOutcome"])
+        self.assertEqual("FAILED", result["checks"]["integrity"])
+        self.assertIn("bundle contains duplicate signed artifact digest", result["errors"])
 
     def test_revoked_key_rejects_all_historical_signatures_without_timestamp(self):
         policy = copy.deepcopy(self.policy)

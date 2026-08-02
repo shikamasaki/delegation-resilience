@@ -4,7 +4,7 @@
 
 v0alpha2が提供するのは独立認証ではなくportable verificationです。ここでいう同じpacketとは、DSSE envelopeだけでなく、そのsigned subject inventoryが列挙する全raw artifact bytesを含みます。同じpacket、verifier code digest、environment digest、評価時点、外部trust policy、consumer high-watermarkを使った場合、同じ限定的な`VerificationResult`をofflineで再現できます。Version文字列だけは実装同一性の根拠にしません。
 
-`packetVerificationOutcome: PACKET_VERIFIED`とCLI終了コード0が意味するのは、packetの構造、integrity、signature/trust処理が完了したことだけです。Claimが`SUPPORTED`、freshnessがcurrent、deploymentが許可可能、安全、適合、認証済みであることを意味しません。CI/CDで利用するconsumerは、別の明示的policyで`checks.freshness`、各`claimResults`、残存gap、deployment decisionを評価します。
+`packetVerificationOutcome: PACKET_VERIFIED`とCLI終了コード0が意味するのは、packetの構造、integrity、signature/trust処理が完了したことだけです。このoutcomeは必ず`checks.signature: VALID`かつ`checks.issuerTrust: TRUSTED`を伴います。署名済みartifactのdigestを別URIで重複させたbundleや、必要なproofが一つでも検証できないbundleは`PACKET_REJECTED`です。Claimが`SUPPORTED`、freshnessがcurrent、deploymentが許可可能、安全、適合、認証済みであることを意味しません。CI/CDで利用するconsumerは、別の明示的policyで`checks.freshness`、各`claimResults`、残存gap、deployment decisionを評価します。
 
 ```text
 DSSE envelope

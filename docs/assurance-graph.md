@@ -8,6 +8,18 @@ claims, dependencies, exercises, and artifacts to source artifact IDs, digests, 
 times. It answers: “which observed artifacts and relationships are being used to support this
 claim, and what can invalidate that support?”
 
+## Release status
+
+Assurance Graph v0alpha1 is a released profile, fixed at the `assurance-graph-v0alpha1.1` tag.
+Consumers must use the release lock for the schema and verifier code digests:
+
+- schema: `sha256:623e4c82c8814977455c91c7e6c838d692cd61fa481197f33db490ec68a85d18`
+- verifier code: `sha256:a62ea481b1036266e631767f3270f7c2cac561271d84a22419882316d874e021`
+
+OrgForge Graph export is pending. The current OrgForge adapter remains v0alpha2 packet-only;
+an adapter must not claim Graph conformance until it can export and independently verify the
+derived graph. Facilitated human drills and real-world recovery capability are not demonstrated.
+
 It is deliberately a profile separate from the Universal Core. The profile owns graph vocabulary
 and graph-specific verification; adapters such as OrgForge only translate their evidence into this
 format and cannot redefine what `supports`, `shares_fate_with`, or `invalidates` mean.

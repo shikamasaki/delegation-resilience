@@ -13,6 +13,21 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 このロードマップの数値は市場統計ではなく、構想を自己正当化し続けないための内部decision gateです。
 
+## Current implementation status
+
+- v0alpha1 semantic kernel: complete
+- v0alpha2 portable verification foundation: complete and backward-compatible
+- Assurance Graph v0alpha1: released and fixed at `assurance-graph-v0alpha1.1`
+- Assurance Graph schema digest: `sha256:623e4c82c8814977455c91c7e6c838d692cd61fa481197f33db490ec68a85d18`
+- Assurance Graph verifier code digest: `sha256:a62ea481b1036266e631767f3270f7c2cac561271d84a22419882316d874e021`
+- OrgForge Assurance Graph export: pending; the current OrgForge adapter remains v0alpha2 packet-only
+- Facilitated human drill: not demonstrated
+- Real-world recovery capability: not demonstrated
+
+The Assurance Graph is an independent derived profile. It does not replace the v0alpha2 packet,
+and `GRAPH_VERIFIED` only verifies graph structure, provenance, references, and digests; it never
+demonstrates recovery capability, human takeover, authorization, or deployment approval.
+
 ## Phase 0 — Foundation and buyer gate（0–2か月）
 
 ### Deliverables

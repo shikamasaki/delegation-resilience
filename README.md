@@ -111,7 +111,7 @@ Delegation Resilience Doctrine
 
 ## Status
 
-`incubating / v0alpha1 semantic kernel complete / v0alpha2 portable verification / assurance-graph v0alpha1 released`
+`incubating / v0alpha1 semantic kernel complete / v0alpha2 portable verification complete / assurance-graph v0alpha1 released / OrgForge graph export pending / real-world recovery not demonstrated`
 
 v0alpha1のprofileとexercise semanticsは機能凍結し、v0alpha2では後方互換なportable verification layerを追加しています。現在のreference bundleは、DSSE envelopeと全subject bytesからなる同じpacket、verifier code/environment digest、評価時点、外部trust policy、consumer high-watermarkから同じ限定的な`VerificationResult`をofflineで再現します。これは独立認証ではありません。`PACKET_VERIFIED`はclaim supportやdeployment可否を意味しません。
 

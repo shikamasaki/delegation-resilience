@@ -1,0 +1,7 @@
+apiVersion: delegation-resilience.org/v0alpha2
+kind: ParticipantSequenceHighWatermarks
+trustPolicyRef: UNPROVISIONED
+trustPolicySequenceNumber: 1
+preflightRunId: UNPROVISIONED-RUN
+challenge: UNPROVISIONED-CHALLENGE
+participantStatements: {}

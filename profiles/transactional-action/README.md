@@ -36,6 +36,11 @@ Attestationは実測結果であり、profile本文へ埋め込みません。
 - [HumanDrillEvidence](schema/human-drill-evidence.schema.json)
 - [Human drill preflight](schema/human-drill-preflight.schema.json)
 - [Runtime state snapshot](schema/runtime-state.schema.json)
+- [DSSE envelope](schema/dsse-envelope.schema.json)
+- [Portable verification bundle](schema/verification-bundle.schema.json)
+- [Trust policy](schema/trust-policy.schema.json)
+- [Dependency snapshot](schema/dependency-snapshot.schema.json)
+- [Verification result](schema/verification-result.schema.json)
 
 Schemas use JSON Schema Draft 2020-12. YAMLはauthoring convenienceであり、duplicate keyを拒否してJSON data modelへ変換してから検証します。
 
@@ -77,9 +82,13 @@ JSON Schemaは構造とcardinalityを検証します。[Semantic validator](../.
 
 同じevidence requirementを時刻やsourceを変えて複数回観測することは許可します。その場合も各観測は一意な`evidenceObservationId`を持ち、異なる値を同じIDで上書きできません。各観測は`finding: satisfied | contradicted | unavailable | inconclusive`を持ちます。Negative observationもevidenceですが、requirementを満たした証拠ではありません。
 
-Human evidenceは`HumanDrillEvidence` envelopeで、scenario、sandbox environment、participant、evidence type、対象、issuer、観測時刻、期限をartifact内部にも保持し、scenarioの`humanEvidenceBindings`および外側の参照と照合します。現段階の`assurance: digest_bound`は内容の完全性と内部整合性を示すだけで、issuer真正性を示しません。署名・trust store検証は未実装であるため、v0alpha1 validatorは`handover`と`human_takeover`の能力実証への昇格を常に拒否します。
+Human evidenceは`HumanDrillEvidence` envelopeで、scenario、sandbox environment、participant、evidence type、対象、issuer、観測時刻、期限をartifact内部にも保持し、scenarioの`humanEvidenceBindings`および外側の参照と照合します。`assurance: digest_bound`は内容の完全性と内部整合性を示すだけで、issuer真正性を示しません。v0alpha1 semantic validator単体にはtrust contextがないため、`handover`と`human_takeover`の能力実証への昇格を常に拒否します。
+
+v0alpha2 portable verifierはDSSE/Ed25519署名、bundle外trust policy、issuer scope、key/statement revocationを検証します。ただし署名済みの自己申告をhuman capabilityへ昇格させません。Human preflightはfacilitator/abort authorityの分離、participant acknowledgement/withdrawal、run/challenge/profile/context/briefing binding、consumer-held statement sequenceを検証します。Completed handover/task observationとexternal reconciliationが同じrunへ結ばれるまでは、v0alpha1 semantic validatorのhuman capability ceilingを維持します。開始可能性とhuman capabilityの実証は別のgateです。
 
 Technical evidenceもdigest一致だけではpositive assuranceとして扱いません。v0alpha1で技術的部分能力を昇格できるのは、validatorが明示的に知るbuilt-in deterministic runnerを同じprofileで再実行し、参照artifactが再生成bytesと一致する場合だけです。未知のrunnerや自己申告envelopeは、構造と完全性を検証できても能力を昇格できません。
+
+v0alpha2 standalone verifierはrunnerを同梱せず、対応を明示したRefund scenarioについてprofileのworkload、seed、fault countからprofile-aware variantの完全なdeterministic witnessを別実装で再構成します。Signed evidenceがその全event/effectと一致した場合だけ部分能力を返します。Baseline evidenceは比較資料であり、現時点のportable capability根拠ではありません。未対応scenarioや部分的な集計整合性はcapability supportになりません。
 
 `sharedDependencies`は、`dependencyAnalysisRequired`がないscenarioでは条件を表すlabelです。`dependencyAnalysisRequired: true`の場合だけ、`dependencyTopology`が必須となり、shared dependencyとfault targetをcomponent参照として検証します。
 
@@ -87,7 +96,22 @@ Technical evidenceもdigest一致だけではpositive assuranceとして扱い�
 
 - recovery claimのdependency IDと実際のconfigurationの対応
 - 複数claimを束ねたdeployment全体のdisposition導出
-- dependency変更に伴うAttestationの自動失効
+- current dependencyの自動discovery。v0alpha2はcallerが渡したsigned snapshotだけを評価します。
+
+## Portable verification
+
+```bash
+python tools/verify_bundle.py \
+  examples/refund/portable-verification/bundle.dsse.json \
+  --trust-policy examples/refund/portable-verification/trust-policy.json \
+  --artifact-root examples/refund/portable-verification \
+  --as-of 2026-08-03T00:00:00Z \
+  --min-policy-sequence 1 \
+  --expected-verifier-code-digest "sha256:<out-of-band-pinned-code-digest>" \
+  --expected-verifier-environment-digest "sha256:<out-of-band-pinned-environment-digest>"
+```
+
+このCLIはexercise runnerを実行・importしません。外部trust policyをrootとして、signed manifestの完全性、artifact別署名、issuer authorization、失効、schema/semantic binding、dependency freshnessをofflineで検証します。出力はdeployment可否ではなく、検証軸とcapability別supportを分離したcanonical `VerificationResult`です。詳細は[Portable Verification](../../docs/portable-verification.md)を参照してください。
 
 ## Canonicalization and digest
 
@@ -125,4 +149,4 @@ Schema validationはruntime enforcementではありません。Profileの各clai
 
 ## Example
 
-[Refund profile](../../examples/refund/profile.yaml)は、まだexercise attestationを持たないため、recovery claimを`ASSERTED / PROHIBITED`として公開します。実験成功後にのみ`SUPPORTED`へ変更できます。
+[Refund profile](../../examples/refund/profile.yaml)本文はattestationを参照しておらず、recovery claimを`ASSERTED / PROHIBITED`として公開します。Portable packetの部分能力supportもclaim全体を`SUPPORTED`へ変更しません。

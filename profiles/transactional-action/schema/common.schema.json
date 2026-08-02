@@ -25,7 +25,7 @@
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "type": {
-          "enum": ["human", "group", "organization", "workload", "agent"]
+          "enum": ["human", "group", "organization", "service", "workload", "agent"]
         }
       }
     },

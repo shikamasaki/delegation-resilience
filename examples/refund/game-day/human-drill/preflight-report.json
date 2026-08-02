@@ -1,14 +1,22 @@
 {
+  "challenge": "UNPROVISIONED-CHALLENGE",
   "claimResultCeilingBeforeCompletedDrill": "not_demonstrated",
   "declaredOperatorCount": 0,
   "digestBoundPrerequisitesComplete": false,
+  "evaluatedAt": "2026-08-03T00:00:00Z",
   "evaluatedProfileDigest": "sha256:beab8cfcaf7f20dfacae1fae070f38aa3e8259f9047c72d6f41596af128bddbf",
   "humanTakeoverMayBeClaimed": false,
-  "manifestDigest": "sha256:6a4b687184e9c3ef3f0e0e82fa5b0c770c0a943a1dd5985f25fa436acd4bc639",
+  "manifestDigest": "sha256:a2dc9c5334e37cd266856036f41f9d7d104e17bb505d9839af50bc5bc3031438",
   "missingPrerequisites": [
+    "a current external trust policy and trusted DSSE proof are required for every human evidence artifact",
     "a provisioned sandbox environment must be identified",
     "an accountable facilitator must be assigned",
+    "an independently identified abort authority must be assigned",
+    "a one-time non-placeholder preflight challenge is required",
     "at least 2 real qualified operators are required",
+    "briefing artifact: artifact file does not exist",
+    "facilitatorAssignmentEvidence: artifact file does not exist",
+    "abortAuthorityAssignmentEvidence: artifact file does not exist",
     "fault injection must be approved",
     "the refund provider sandbox must be ready",
     "the evidence sink must be ready",
@@ -19,13 +27,17 @@
     "each operator's right to pause or withdraw must be confirmed",
     "a fatigue-aware shift and reserve staffing plan must be ready",
     "operator-channel independence requires digest-bound evidence for: agent_connector, identity, policy, provider_outcome",
-    "participant safeguards require digest-bound evidence for: briefing_consent, data_use_retention, fatigue_shift_plan, operator_abort_rights",
-    "trusted issuer signature verification is not implemented; preflight remains advisory"
+    "participant safeguards require digest-bound evidence for: briefing_consent, data_use_retention, fatigue_shift_plan, operator_abort_rights"
   ],
-  "preflight": "refund-human-takeover/v0alpha1",
+  "participantSequenceHighWatermarks": null,
+  "preflight": "refund-human-takeover/v0alpha2",
+  "preflightContextDigest": "sha256:6378e8f41c592d039a654ecce4e6c81ad0224488be2d430847c3ec1be58aaa91",
+  "preflightRunId": "UNPROVISIONED-RUN",
   "ready": false,
   "reason": "Preflight readiness is not exercise evidence. human_takeover can only be claimed by a completed, semantically valid Attestation with facilitated or live participants, verified authority, verified access, observed human-handover evidence, and trusted issuer signature verification.",
   "requiredOperatorCount": 2,
   "scenarioRef": "refund-facilitated-human-takeover",
-  "trustedIssuerVerificationImplemented": false
+  "trustPolicy": null,
+  "trustedEvidenceComplete": false,
+  "trustedIssuerVerificationImplemented": true
 }

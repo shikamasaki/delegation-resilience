@@ -5,11 +5,11 @@
   "additionalProperties": false,
   "required": ["apiVersion", "kind", "scenarioRef", "environmentRef", "evidenceType", "subjectRefs", "objectRef", "finding", "covers", "issuer", "observedAt", "validUntil", "assurance"],
   "properties": {
-    "apiVersion": { "const": "delegation-resilience.org/v0alpha1" },
+    "apiVersion": { "enum": ["delegation-resilience.org/v0alpha1", "delegation-resilience.org/v0alpha2"] },
     "kind": { "const": "HumanDrillEvidence" },
     "scenarioRef": { "type": "string", "minLength": 1 },
     "environmentRef": { "type": "string", "minLength": 1 },
-    "evidenceType": { "enum": ["qualification", "authority", "operational_access", "channel_independence", "participant_safeguard"] },
+    "evidenceType": { "enum": ["qualification", "authority", "operational_access", "channel_independence", "participant_safeguard", "participant_acknowledgement", "withdrawal_status", "facilitator_assignment", "abort_authority_assignment", "handover_observation", "human_task_outcome"] },
     "subjectRefs": {
       "type": "array",
       "minItems": 1,
@@ -17,7 +17,15 @@
       "items": { "type": "string", "minLength": 1 }
     },
     "objectRef": { "type": "string", "minLength": 1 },
-    "finding": { "const": "satisfied" },
+    "finding": { "enum": ["satisfied", "declined", "withdrawn"] },
+    "participantDecision": { "enum": ["acknowledged", "declined"] },
+    "participantStatus": { "enum": ["active", "withdrawn"] },
+    "statementSequence": { "type": "integer", "minimum": 1 },
+    "preflightRunId": { "type": "string", "minLength": 8 },
+    "challenge": { "type": "string", "minLength": 16 },
+    "profileDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "preflightContextDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "briefingArtifactDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
     "covers": {
       "type": "array",
       "minItems": 1,
@@ -37,5 +45,51 @@
     "validUntil": { "type": "string", "format": "date-time" }
     ,
     "assurance": { "const": "digest_bound" }
-  }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "apiVersion": { "const": "delegation-resilience.org/v0alpha1" } }, "required": ["apiVersion"] },
+      "then": {
+        "properties": {
+          "evidenceType": { "enum": ["qualification", "authority", "operational_access", "channel_independence", "participant_safeguard"] },
+          "finding": { "const": "satisfied" }
+        },
+        "not": { "anyOf": [{ "required": ["participantDecision"] }, { "required": ["participantStatus"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "apiVersion": { "const": "delegation-resilience.org/v0alpha2" }, "evidenceType": { "const": "participant_acknowledgement" } }, "required": ["apiVersion", "evidenceType"] },
+      "then": { "required": ["participantDecision", "statementSequence", "preflightRunId", "challenge", "profileDigest", "preflightContextDigest", "briefingArtifactDigest"] }
+    },
+    {
+      "if": { "properties": { "apiVersion": { "const": "delegation-resilience.org/v0alpha2" }, "evidenceType": { "const": "withdrawal_status" } }, "required": ["apiVersion", "evidenceType"] },
+      "then": { "required": ["participantStatus", "statementSequence", "preflightRunId", "challenge", "profileDigest", "preflightContextDigest", "briefingArtifactDigest"] }
+    },
+    {
+      "if": { "properties": { "participantDecision": { "const": "acknowledged" } }, "required": ["participantDecision"] },
+      "then": { "properties": { "finding": { "const": "satisfied" } } }
+    },
+    {
+      "if": { "properties": { "participantDecision": { "const": "declined" } }, "required": ["participantDecision"] },
+      "then": { "properties": { "finding": { "const": "declined" } } }
+    },
+    {
+      "if": { "properties": { "participantStatus": { "const": "active" } }, "required": ["participantStatus"] },
+      "then": { "properties": { "finding": { "const": "satisfied" } } }
+    },
+    {
+      "if": { "properties": { "participantStatus": { "const": "withdrawn" } }, "required": ["participantStatus"] },
+      "then": { "properties": { "finding": { "const": "withdrawn" } } }
+    },
+    {
+      "if": {
+        "properties": {
+          "apiVersion": { "const": "delegation-resilience.org/v0alpha2" },
+          "evidenceType": { "enum": ["qualification", "authority", "operational_access", "channel_independence", "participant_safeguard", "facilitator_assignment", "abort_authority_assignment", "handover_observation", "human_task_outcome"] }
+        },
+        "required": ["apiVersion", "evidenceType"]
+      },
+      "then": { "properties": { "finding": { "const": "satisfied" } } }
+    }
+  ]
 }

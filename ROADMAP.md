@@ -26,7 +26,7 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 - [x] machine-readable Refund profileの初期instance
 - [x] profile内参照graphとcore assurance semanticsのvalidator
 - [x] exercise mode、実測条件、証拠強度を持つAttestation schema
-- [ ] canonicalizationとdigestのreference implementation
+- [x] canonicalizationとdigestのreference implementation
 - [ ] scenario taxonomyとevidence envelopeの外部review
 - [ ] AWS/NIST/ISOとのclaim-level差分表のreview
 - [ ] OrgForge reviewer-outage exerciseの設計
@@ -50,14 +50,21 @@ Spin out when:  portability, repeated value, buyer and budget are proven
 
 - [x] Refund response-loss deterministic comparison prototype
 - [x] v0alpha validatorのdependency referenceとcanonical profile digest lint
-- [ ] dependency変更に伴うAttestationの自動失効
+- [x] signed dependency snapshotによる`STALE / REVIEW_REQUIRED`導出
 - [x] local deterministic exercise runner
 - [ ] fake model/tool/approver/evidence sink
 - [x] epistemic `UNKNOWN`とexternal reconciliation
 - [ ] capability-specific degradation（deterministic control-flow prototype以外）
 - [x] fallbackのdependency-topology独立性判定
 - [ ] behavioral exerciseによるfallback qualification
-- [ ] signed exercise attestationとevidence packet
+- [x] DSSE署名、in-toto manifest、外部trust policyを持つportable evidence packet
+- [x] runnerを含まないstandalone verifier exportとcanonical VerificationResult
+- [x] 全subject digest、artifact role、profile-aware variantの独立deterministic witness、verifier code manifestの検証
+- [x] caller-pinned verifier code/environment digestとCPython patch runtimeの照合
+- [x] key、statement、policy expiry/rollbackのoffline失効判定
+- [x] run/challenge/briefing/sequenceへ束縛したtrusted human-drill preflight
+- [ ] 独立sandboxでのfacilitated human takeover実地演習
+- [ ] trusted timestampを伴うhistorical verification
 - [ ] OrgForgeでのend-to-end dogfood
 
 ### Exercise scenarios

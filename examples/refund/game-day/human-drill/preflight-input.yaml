@@ -1,13 +1,31 @@
-apiVersion: delegation-resilience.org/v0alpha1
+apiVersion: delegation-resilience.org/v0alpha2
 kind: HumanDrillPreflight
 scenarioRef: refund-facilitated-human-takeover
 sandboxEnvironmentId: UNPROVISIONED
+preflightRunId: UNPROVISIONED-RUN
+challenge: UNPROVISIONED-CHALLENGE
 facilitatorId: ""
+abortAuthorityId: UNASSIGNED
+facilitatorAssignmentEvidence:
+  uri: evidence/UNPROVISIONED-facilitator-assignment.json
+  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+abortAuthorityAssignmentEvidence:
+  uri: evidence/UNPROVISIONED-abort-authority-assignment.json
+  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+briefingArtifact:
+  uri: briefing/UNPROVISIONED.json
+  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+participantDataUse:
+  purpose: UNPROVISIONED
+  audiences: [UNPROVISIONED]
+  retentionUntil: "2026-08-03T00:00:00Z"
 participants: []
 authorityVerifications: []
 operationalAccessVerifications: []
 operatorChannelIndependenceEvidence: []
 participantSafeguardEvidence: []
+participantAcknowledgements: []
+withdrawalStatusEvidence: []
 controls:
   faultInjectionApproved: false
   providerSandboxReady: false

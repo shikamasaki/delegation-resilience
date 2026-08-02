@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Offline Trust Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "sequenceNumber", "validFrom", "validUntil", "keys", "revokedSubjects", "humanEvidenceRules"],
+  "properties": {
+    "apiVersion": { "const": "delegation-resilience.org/v0alpha2" },
+    "kind": { "const": "TrustPolicy" },
+    "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+    "sequenceNumber": { "type": "integer", "minimum": 1 },
+    "validFrom": { "type": "string", "format": "date-time" },
+    "validUntil": { "type": "string", "format": "date-time" },
+    "keys": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["keyId", "algorithm", "publicKey", "issuer", "independenceDomain", "status", "validFrom", "validUntil", "authorizations"],
+        "properties": {
+          "keyId": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "algorithm": { "const": "Ed25519" },
+          "publicKey": { "type": "string", "contentEncoding": "base64" },
+          "issuer": { "$ref": "common.schema.json#/$defs/identity" },
+          "independenceDomain": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["active", "revoked"] },
+          "validFrom": { "type": "string", "format": "date-time" },
+          "validUntil": { "type": "string", "format": "date-time" },
+          "revokedAt": { "type": "string", "format": "date-time" },
+          "revocationReason": { "type": "string", "minLength": 1 },
+          "authorizations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["purpose", "artifactKinds", "maxAgeSeconds"],
+              "properties": {
+                "purpose": {
+                  "enum": ["verification_bundle", "exercise_attestation", "exercise_evidence", "human_evidence", "dependency_snapshot"]
+                },
+                "artifactKinds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "scenarioRefs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "environmentRefs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "evidenceTypes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "apiVersions": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "payloadTypes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "subjectRefs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "objectRefs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "covers": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "maxAgeSeconds": { "type": "integer", "minimum": 1 }
+              },
+              "allOf": [
+                {
+                  "if": { "properties": { "purpose": { "enum": ["exercise_attestation", "exercise_evidence"] } } },
+                  "then": { "required": ["scenarioRefs", "environmentRefs"] }
+                },
+                {
+                  "if": { "properties": { "purpose": { "const": "human_evidence" } } },
+                  "then": { "required": ["scenarioRefs", "environmentRefs", "evidenceTypes", "apiVersions", "payloadTypes", "subjectRefs", "objectRefs", "covers"] }
+                }
+              ]
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "status": { "const": "revoked" } } },
+            "then": { "required": ["revokedAt", "revocationReason"] }
+          }
+        ]
+      }
+    },
+    "revokedSubjects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["digest", "revokedAt", "reason"],
+        "properties": {
+          "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "revokedAt": { "type": "string", "format": "date-time" },
+          "reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "humanEvidenceRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requireParticipantIssuerSeparation", "requireAttestationIssuerSeparation", "minimumIndependenceDomains"],
+      "properties": {
+        "requireParticipantIssuerSeparation": { "const": true },
+        "requireAttestationIssuerSeparation": { "const": true },
+        "minimumIndependenceDomains": { "type": "integer", "minimum": 2 }
+      }
+    }
+  }
+}

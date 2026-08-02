@@ -104,10 +104,14 @@ Delegation Resilience Doctrine
 - [Refund example](examples/refund/README.md): 最初の非coding reference scenario
 - [Refund Recovery Game Days](game_days/refund/README.md): response loss比較、shared-fate検出、human takeover preflight
 - [Facilitated human drill runbook](game_days/refund/HUMAN_DRILL.md): 実地演習の前提、測定、証拠、fail-closed判定
+- [Portable Verification](docs/portable-verification.md): DSSE、in-toto manifest、外部trust policy、dependency invalidation、standalone verifier
+- [ADR-0002](docs/decisions/0002-portable-verification-boundary.md): 署名と検証の信頼境界
 
 ## Status
 
-`incubating / v0alpha working model`
+`incubating / v0alpha1 semantic kernel complete / v0alpha2 portable verification`
+
+v0alpha1のprofileとexercise semanticsは機能凍結し、v0alpha2では後方互換なportable verification layerを追加しています。現在のreference bundleは、DSSE envelopeと全subject bytesからなる同じpacket、verifier code/environment digest、評価時点、外部trust policy、consumer high-watermarkから同じ限定的な`VerificationResult`をofflineで再現します。これは独立認証ではありません。`PACKET_VERIFIED`はclaim supportやdeployment可否を意味しません。
 
 ここで公開する語彙と形式は、現時点では国際標準、認証、規制適合を意味しません。少なくとも二つの異なる業務領域と複数の独立実装で有効性を確認するまでは、`standard`ではなく`working model`または`v0.x format`と呼びます。
 

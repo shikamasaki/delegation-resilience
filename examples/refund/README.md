@@ -50,6 +50,8 @@ Shared-fate exerciseも同じprofileから実行でき、[run report](game-day/s
 
 Facilitated drillは[runbook](../../game_days/refund/HUMAN_DRILL.md)と[fail-closed preflight](game-day/human-drill/preflight-report.json)で準備します。現在のfixtureは意図的に`ready: false`であり、実地演習済みとは扱いません。
 
+[Portable verification bundle](portable-verification/bundle.dsse.json)は、response-loss exerciseのprofile、Attestation、evidence、SUT artifact、dependency snapshotをsigned in-toto manifestへ束縛します。Standalone verifierはprofile条件からdeterministic witnessを独立再構成します。[Canonical VerificationResult](portable-verification/verification-result.json)は、packet処理だけを`PACKET_VERIFIED`としつつ、claim全体を`UNKNOWN`、`external_reconciliation`だけをsupported capability、human takeoverをunsupportedとして再現します。reference鍵は公開されたtest-only鍵であり、実在組織へのtrustを意味しません。
+
 ## Expected observations
 
 - 二重返金が発生しない。

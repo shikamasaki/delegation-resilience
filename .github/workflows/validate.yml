@@ -23,6 +23,10 @@ jobs:
           python -m pip check
       - name: Validate JSON Schemas
         run: check-jsonschema --check-metaschema profiles/transactional-action/schema/*.json
+      - name: Validate Assurance Graph schema and example
+        run: |
+          check-jsonschema --check-metaschema profiles/assurance-graph/schema/*.json
+          check-jsonschema --schemafile profiles/assurance-graph/schema/assurance-graph.schema.json examples/assurance-graph/graph.json
       - name: Validate refund profile
         run: check-jsonschema --schemafile profiles/transactional-action/schema/profile.schema.json examples/refund/profile.yaml
       - name: Validate attestation fixture
@@ -55,6 +59,14 @@ jobs:
         run: python tools/validate_profile.py examples/refund/profile.yaml --attestation tests/fixtures/valid/attestation-deterministic.yaml --artifact-root . --as-of 2026-08-03T00:00:00Z
       - name: Run semantic negative tests
         run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Verify deterministic Assurance Graph result
+        run: |
+          python tools/verify_assurance_graph.py examples/assurance-graph/graph.json \
+            --artifact-root examples/assurance-graph > /tmp/assurance-graph-result-1.json
+          python tools/verify_assurance_graph.py examples/assurance-graph/graph.json \
+            --artifact-root examples/assurance-graph > /tmp/assurance-graph-result-2.json
+          cmp /tmp/assurance-graph-result-1.json /tmp/assurance-graph-result-2.json
+          python -c 'import json; r=json.load(open("/tmp/assurance-graph-result-1.json")); assert r["graphVerificationOutcome"] == "GRAPH_VERIFIED"; assert all(c["verifiedSupport"] == "NOT_DEMONSTRATED" for c in r["claimResults"])'
       - name: Verify deterministic Refund Game Day artifacts
         run: |
           python -m game_days.refund.runner --verify

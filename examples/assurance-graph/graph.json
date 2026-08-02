@@ -1,0 +1,42 @@
+{
+  "apiVersion": "delegation-resilience.org/assurance-graph/v0alpha1",
+  "kind": "AssuranceGraph",
+  "metadata": {
+    "graphId": "graph:refund-response-loss-0001",
+    "createdAt": "2026-08-03T00:05:00Z",
+    "canonicalization": "RFC8785-JCS"
+  },
+  "sourceArtifacts": [
+    {
+      "id": "src:refund-observation",
+      "uri": "evidence/refund-observation.json",
+      "digest": "sha256:c56afab4892486ab81c5df20e0b72547b72b3866ce86c7a54bf7ebb03f20d01b",
+      "observedAt": "2026-08-03T00:00:00Z"
+    }
+  ],
+  "nodes": [
+    {"id":"intent:refund-0001","type":"intent","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"attempt:refund-0001","type":"attempt","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"actor:agent-0001","type":"actor","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"capability:refund-proposal","type":"capability","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"external-effect:refund-0001","type":"external_effect","sourceRefs":["src:refund-observation"],"artifactDigest":"sha256:c56afab4892486ab81c5df20e0b72547b72b3866ce86c7a54bf7ebb03f20d01b","assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"evidence:refund-observation","type":"evidence","sourceRefs":["src:refund-observation"],"artifactDigest":"sha256:c56afab4892486ab81c5df20e0b72547b72b3866ce86c7a54bf7ebb03f20d01b","assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"attestation:refund-game-day","type":"attestation","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"claim:external-reconciliation","type":"claim","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]},"attributes":{"status":"ASSERTED"}},
+    {"id":"dependency:primary-provider","type":"dependency","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"dependency:status-api","type":"dependency","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"exercise:response-loss","type":"exercise","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"artifact:refund-evidence","type":"artifact","sourceRefs":["src:refund-observation"],"artifactDigest":"sha256:c56afab4892486ab81c5df20e0b72547b72b3866ce86c7a54bf7ebb03f20d01b","assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}}
+  ],
+  "edges": [
+    {"id":"edge:attempts","type":"attempts","from":"intent:refund-0001","to":"attempt:refund-0001","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"edge:uses","type":"uses","from":"attempt:refund-0001","to":"capability:refund-proposal","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"edge:produces","type":"produces","from":"attempt:refund-0001","to":"external-effect:refund-0001","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"edge:observes","type":"observes","from":"attestation:refund-game-day","to":"evidence:refund-observation","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"edge:supports","type":"supports","from":"attestation:refund-game-day","to":"claim:external-reconciliation","sourceRefs":["src:refund-observation"],"assurance":"inferred","provenance":{"mode":"inferred","sourceRefs":["src:refund-observation"],"method":"derived from exercise result"}},
+    {"id":"edge:depends","type":"depends_on","from":"claim:external-reconciliation","to":"dependency:primary-provider","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"edge:shared-fate","type":"shares_fate_with","from":"dependency:primary-provider","to":"dependency:status-api","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"edge:invalidates","type":"invalidates","from":"dependency:status-api","to":"claim:external-reconciliation","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}},
+    {"id":"edge:produces-artifact","type":"produces_artifact","from":"exercise:response-loss","to":"artifact:refund-evidence","sourceRefs":["src:refund-observation"],"assurance":"observed","provenance":{"mode":"observed","sourceRefs":["src:refund-observation"]}}
+  ]
+}

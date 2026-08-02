@@ -106,12 +106,16 @@ Delegation Resilience Doctrine
 - [Facilitated human drill runbook](game_days/refund/HUMAN_DRILL.md): 実地演習の前提、測定、証拠、fail-closed判定
 - [Portable Verification](docs/portable-verification.md): DSSE、in-toto manifest、外部trust policy、dependency invalidation、standalone verifier
 - [ADR-0002](docs/decisions/0002-portable-verification-boundary.md): 署名と検証の信頼境界
+- [Assurance Graph](docs/assurance-graph.md): artifactから再生成する委任保証グラフの意味論、検証規則、非目標
+- [Assurance Graph profile](profiles/assurance-graph/README.md): v0alpha1 schema、semantic validator、最小example
 
 ## Status
 
-`incubating / v0alpha1 semantic kernel complete / v0alpha2 portable verification`
+`incubating / v0alpha1 semantic kernel complete / v0alpha2 portable verification / assurance-graph v0alpha1 draft`
 
 v0alpha1のprofileとexercise semanticsは機能凍結し、v0alpha2では後方互換なportable verification layerを追加しています。現在のreference bundleは、DSSE envelopeと全subject bytesからなる同じpacket、verifier code/environment digest、評価時点、外部trust policy、consumer high-watermarkから同じ限定的な`VerificationResult`をofflineで再現します。これは独立認証ではありません。`PACKET_VERIFIED`はclaim supportやdeployment可否を意味しません。
+
+Assurance Graphは、v0alpha2 packetを置き換えない独立profileです。intent、attempt、external effect、evidence、attestation、claim、dependency、shared-fate、invalidationの関係を、元artifactのdigestとsource referenceへ束縛した派生artifactとして検証します。`GRAPH_VERIFIED`もrecovery capabilityの実証やauthorizationを意味せず、証拠不足・推論関係・shared-fateがあるclaimは`NOT_DEMONSTRATED`に留まります。
 
 ここで公開する語彙と形式は、現時点では国際標準、認証、規制適合を意味しません。少なくとも二つの異なる業務領域と複数の独立実装で有効性を確認するまでは、`standard`ではなく`working model`または`v0.x format`と呼びます。
 

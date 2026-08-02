@@ -9,8 +9,12 @@ import pathlib
 import re
 from typing import Any
 
-import yaml
 from jsonschema import Draft202012Validator, FormatChecker
+
+try:
+    from tools.data_loading import load_data_bytes
+except ModuleNotFoundError:
+    from data_loading import load_data_bytes
 
 HUMAN_SCHEMA_PATH = (
     pathlib.Path(__file__).resolve().parents[1]
@@ -42,6 +46,7 @@ def load_local_artifact(
     *,
     base_dir: pathlib.Path | None,
     artifact_root: pathlib.Path | None,
+    strict_paths: bool = False,
 ) -> tuple[bytes | None, list[str]]:
     """Resolve a local artifact without escaping the declared trust root."""
     if not isinstance(reference, dict):
@@ -52,10 +57,24 @@ def load_local_artifact(
     digest = reference.get("digest")
     if not isinstance(uri, str) or not uri or "://" in uri or uri.startswith("file:"):
         return None, ["artifact URI must be a relative local path"]
+    pure_uri = pathlib.PurePosixPath(uri)
+    if (
+        pure_uri.is_absolute()
+        or "\\" in uri
+        or uri != pure_uri.as_posix()
+        or (strict_paths and ".." in pure_uri.parts)
+    ):
+        return None, ["artifact URI must not use absolute or traversal syntax"]
     if not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
         return None, ["artifact digest must be lowercase SHA-256"]
     root = artifact_root.resolve()
-    target = (base_dir.resolve() / uri).resolve()
+    unresolved = base_dir.resolve() / uri
+    cursor = base_dir.resolve()
+    for part in pure_uri.parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            return None, ["artifact path contains a symbolic link"]
+    target = unresolved.resolve()
     try:
         target.relative_to(root)
     except ValueError:
@@ -81,6 +100,9 @@ def validate_human_evidence(
     object_refs: set[str] | None,
     covers: set[str],
     as_of: dt.datetime,
+    expected_finding: str = "satisfied",
+    participant_decision: str | None = None,
+    participant_status: str | None = None,
 ) -> list[str]:
     """Validate integrity and the declared semantics of a human evidence envelope."""
     content, errors = load_local_artifact(
@@ -90,11 +112,9 @@ def validate_human_evidence(
         return errors
     assert content is not None
     try:
-        envelope = yaml.safe_load(content)
-    except yaml.YAMLError:
-        return ["artifact is not valid YAML or JSON"]
-    if not isinstance(envelope, dict):
-        return ["artifact does not contain a structured evidence object"]
+        envelope = load_data_bytes(content, source="human evidence artifact")
+    except ValueError as exc:
+        return [str(exc)]
     schema = json.loads(HUMAN_SCHEMA_PATH.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
     schema_errors = sorted(
@@ -121,6 +141,18 @@ def validate_human_evidence(
         semantic_errors.append("human evidence objectRef does not match")
     if not covers <= set(envelope["covers"]):
         semantic_errors.append("human evidence covers do not satisfy the assertion")
+    if envelope["finding"] != expected_finding:
+        semantic_errors.append("human evidence finding does not match")
+    if (
+        participant_decision is not None
+        and envelope.get("participantDecision") != participant_decision
+    ):
+        semantic_errors.append("human evidence participantDecision does not match")
+    if (
+        participant_status is not None
+        and envelope.get("participantStatus") != participant_status
+    ):
+        semantic_errors.append("human evidence participantStatus does not match")
     observed_at = _parse_time(envelope["observedAt"])
     valid_until = _parse_time(envelope["validUntil"])
     if observed_at is None or valid_until is None:
@@ -156,11 +188,9 @@ def validate_exercise_evidence(
         return errors
     assert content is not None
     try:
-        envelope = yaml.safe_load(content)
-    except yaml.YAMLError:
-        return ["artifact is not valid YAML or JSON"]
-    if not isinstance(envelope, dict):
-        return ["artifact does not contain a structured evidence object"]
+        envelope = load_data_bytes(content, source="exercise evidence artifact")
+    except ValueError as exc:
+        return [str(exc)]
     schema = json.loads(EXERCISE_SCHEMA_PATH.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
     schema_errors = sorted(

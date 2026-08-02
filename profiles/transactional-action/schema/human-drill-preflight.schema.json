@@ -5,11 +5,27 @@
   "additionalProperties": false,
   "required": ["apiVersion", "kind", "scenarioRef", "sandboxEnvironmentId", "facilitatorId", "participants", "authorityVerifications", "operationalAccessVerifications", "operatorChannelIndependenceEvidence", "participantSafeguardEvidence", "controls"],
   "properties": {
-    "apiVersion": { "const": "delegation-resilience.org/v0alpha1" },
+    "apiVersion": { "enum": ["delegation-resilience.org/v0alpha1", "delegation-resilience.org/v0alpha2"] },
     "kind": { "const": "HumanDrillPreflight" },
     "scenarioRef": { "type": "string", "minLength": 1 },
     "sandboxEnvironmentId": { "type": "string" },
+    "preflightRunId": { "type": "string", "minLength": 8 },
+    "challenge": { "type": "string", "minLength": 16 },
     "facilitatorId": { "type": "string" },
+    "abortAuthorityId": { "type": "string", "minLength": 1 },
+    "facilitatorAssignmentEvidence": { "$ref": "#/$defs/artifactReference" },
+    "abortAuthorityAssignmentEvidence": { "$ref": "#/$defs/artifactReference" },
+    "briefingArtifact": { "$ref": "#/$defs/artifactReference" },
+    "participantDataUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purpose", "audiences", "retentionUntil"],
+      "properties": {
+        "purpose": { "type": "string", "minLength": 1 },
+        "audiences": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "retentionUntil": { "type": "string", "format": "date-time" }
+      }
+    },
     "participants": {
       "type": "array",
       "items": {
@@ -65,6 +81,14 @@
         }
       }
     },
+    "participantAcknowledgements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/participantVerification" }
+    },
+    "withdrawalStatusEvidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/participantVerification" }
+    },
     "controls": {
       "type": "object",
       "additionalProperties": false,
@@ -82,8 +106,25 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "apiVersion": { "const": "delegation-resilience.org/v0alpha2" } }, "required": ["apiVersion"] },
+      "then": { "required": ["preflightRunId", "challenge", "abortAuthorityId", "facilitatorAssignmentEvidence", "abortAuthorityAssignmentEvidence", "briefingArtifact", "participantDataUse", "participantAcknowledgements", "withdrawalStatusEvidence"] }
+    }
+  ],
   "$defs": {
     "artifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uri", "digest"],
+      "properties": {
+        "uri": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        ,
+        "proof": { "$ref": "#/$defs/proofReference" }
+      }
+    },
+    "proofReference": {
       "type": "object",
       "additionalProperties": false,
       "required": ["uri", "digest"],

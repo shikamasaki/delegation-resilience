@@ -13,12 +13,14 @@ jobs:
   schema:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
-          python-version: "3.12"
-      - name: Install validator
-        run: python -m pip install -r requirements-validation.txt
+          python-version: "3.12.8"
+      - name: Install locked validation and verifier environments
+        run: |
+          python -m pip install -r requirements-validation.txt -r requirements-verifier.txt
+          python -m pip check
       - name: Validate JSON Schemas
         run: check-jsonschema --check-metaschema profiles/transactional-action/schema/*.json
       - name: Validate refund profile
@@ -28,7 +30,17 @@ jobs:
       - name: Validate typed exercise evidence
         run: check-jsonschema --schemafile profiles/transactional-action/schema/exercise-evidence.schema.json tests/fixtures/valid/evidence/semantic-test.json examples/refund/game-day/evidence/*.json examples/refund/game-day/shared-fate/evidence/*.json
       - name: Validate human drill preflight fixture
-        run: check-jsonschema --schemafile profiles/transactional-action/schema/human-drill-preflight.schema.json examples/refund/game-day/human-drill/preflight-input.yaml
+        run: |
+          check-jsonschema --schemafile profiles/transactional-action/schema/human-drill-preflight.schema.json examples/refund/game-day/human-drill/preflight-input.yaml
+          check-jsonschema --schemafile profiles/transactional-action/schema/participant-sequence-highwatermarks.schema.json examples/refund/game-day/human-drill/participant-sequence-highwatermarks.yaml
+      - name: Validate portable verification artifacts
+        run: |
+          check-jsonschema --schemafile profiles/transactional-action/schema/trust-policy.schema.json examples/refund/portable-verification/trust-policy.json
+          check-jsonschema --schemafile profiles/transactional-action/schema/dependency-snapshot.schema.json examples/refund/portable-verification/dependency-snapshot.json
+          check-jsonschema --schemafile profiles/transactional-action/schema/attestation.schema.json examples/refund/portable-verification/attestation.json
+          check-jsonschema --schemafile profiles/transactional-action/schema/exercise-evidence.schema.json examples/refund/portable-verification/evidence/*-provider-outcomes.json
+          check-jsonschema --schemafile profiles/transactional-action/schema/dsse-envelope.schema.json examples/refund/portable-verification/*.dsse.json examples/refund/portable-verification/evidence/*.dsse.json
+          check-jsonschema --schemafile profiles/transactional-action/schema/verification-result.schema.json examples/refund/portable-verification/verification-result.json
       - name: Validate runtime state fixture
         run: check-jsonschema --schemafile profiles/transactional-action/schema/runtime-state.schema.json tests/fixtures/valid/runtime-state*.json
       - name: Reject invalid runtime states
@@ -47,7 +59,8 @@ jobs:
         run: |
           python -m game_days.refund.runner --verify
           python -m game_days.refund.shared_fate --verify
-          python -m game_days.refund.human_drill --verify
+          python -m game_days.refund.human_drill --verify --as-of 2026-08-03T00:00:00Z
+          python -m game_days.refund.portable_bundle --verify
       - name: Verify unexecuted human drill fails closed
         run: |
           if python -m game_days.refund.human_drill --check-ready; then
@@ -59,3 +72,43 @@ jobs:
           check-jsonschema --schemafile profiles/transactional-action/schema/attestation.schema.json examples/refund/game-day/attestation.yaml
           check-jsonschema --schemafile profiles/transactional-action/schema/attestation.schema.json examples/refund/game-day/shared-fate/attestation.yaml
           python tools/validate_profile.py examples/refund/profile.yaml --attestation examples/refund/game-day/attestation.yaml --attestation examples/refund/game-day/shared-fate/attestation.yaml --artifact-root . --as-of 2026-08-03T00:00:00Z
+      - name: Verify portable bundle and same-environment determinism
+        run: |
+          verifier_code_digest=$(python -c 'from tools.verifier_manifest import verifier_code_digest; print(verifier_code_digest())')
+          verifier_environment_digest=$(python -c 'from tools.verifier_manifest import verifier_environment_digest; print(verifier_environment_digest())')
+          python tools/verify_bundle.py examples/refund/portable-verification/bundle.dsse.json \
+            --trust-policy examples/refund/portable-verification/trust-policy.json \
+            --artifact-root examples/refund/portable-verification \
+            --as-of 2026-08-03T00:00:00Z \
+            --min-policy-sequence 1 \
+            --expected-verifier-code-digest "$verifier_code_digest" \
+            --expected-verifier-environment-digest "$verifier_environment_digest" > /tmp/verification-result-1.json
+          python tools/verify_bundle.py examples/refund/portable-verification/bundle.dsse.json \
+            --trust-policy examples/refund/portable-verification/trust-policy.json \
+            --artifact-root examples/refund/portable-verification \
+            --as-of 2026-08-03T00:00:00Z \
+            --min-policy-sequence 1 \
+            --expected-verifier-code-digest "$verifier_code_digest" \
+            --expected-verifier-environment-digest "$verifier_environment_digest" > /tmp/verification-result-2.json
+          cmp /tmp/verification-result-1.json /tmp/verification-result-2.json
+          check-jsonschema --schemafile profiles/transactional-action/schema/verification-result.schema.json /tmp/verification-result-1.json
+          python -c 'import json; assert json.load(open("/tmp/verification-result-1.json"))["packetVerificationOutcome"] == "PACKET_VERIFIED"'
+      - name: Smoke test runner-free standalone verifier export
+        run: |
+          verifier_kit=$(mktemp -d)
+          python tools/export_verifier.py "$verifier_kit"
+          test -s "$verifier_kit/VERIFIER-MANIFEST.json"
+          verifier_code_digest=$(python -c 'from tools.verifier_manifest import verifier_code_digest; print(verifier_code_digest())')
+          verifier_environment_digest=$(python -c 'from tools.verifier_manifest import verifier_environment_digest; print(verifier_environment_digest())')
+          python "$verifier_kit/tools/verify_bundle.py" examples/refund/portable-verification/bundle.dsse.json \
+            --trust-policy examples/refund/portable-verification/trust-policy.json \
+            --artifact-root examples/refund/portable-verification \
+            --as-of 2026-08-03T00:00:00Z \
+            --min-policy-sequence 1 \
+            --expected-verifier-code-digest "$verifier_code_digest" \
+            --expected-verifier-environment-digest "$verifier_environment_digest" > /tmp/standalone-verification-result.json
+          cmp /tmp/standalone-verification-result.json /tmp/verification-result-1.json
+          if find "$verifier_kit" -type d -name game_days | grep -q .; then
+            echo "standalone verifier unexpectedly contains an exercise runner"
+            exit 1
+          fi

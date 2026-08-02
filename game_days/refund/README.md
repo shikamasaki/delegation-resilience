@@ -42,7 +42,7 @@ python3 -m game_days.refund.runner --write
 python3 -m game_days.refund.runner --verify
 python3 -m game_days.refund.shared_fate --write
 python3 -m game_days.refund.shared_fate --verify
-python3 -m game_days.refund.human_drill --verify
+python3 -m game_days.refund.human_drill --verify --as-of 2026-08-03T00:00:00Z
 ```
 
 生成物は[examples/refund/game-day](../../examples/refund/game-day/)へ保存します。
@@ -110,4 +110,4 @@ Runnerは依存グラフへfaultを伝播させます。今回の固定条件で
 python3 -m game_days.refund.human_drill --check-ready
 ```
 
-repositoryの初期preflightは意図的に終了コード1です。現行v0alpha1では、digest-bound prerequisiteがすべて揃っても、署名・trust storeによるissuer検証が未実装なので`ready`にはなりません。completed drillと信頼済み証拠検証の両方がない限り、`human_takeover`は`demonstrated`になりません。
+repositoryの初期preflightは意図的に終了コード1です。v0alpha2はDSSE署名、外部trust policy、issuer scope、失効、policy sequence、participant statement sequenceを検証します。実運用では`--trust-policy`、`--min-policy-sequence`、`--participant-sequence-highwatermarks`を指定し、fault注入直前にも同じchallengeで再評価します。completed drillと信頼済み証拠検証の両方がない限り、`human_takeover`は`demonstrated`になりません。

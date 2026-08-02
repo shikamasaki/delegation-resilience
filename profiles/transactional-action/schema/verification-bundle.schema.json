@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "in-toto Statement carrying a Portable Verification Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["_type", "subject", "predicateType", "predicate"],
+  "properties": {
+    "_type": { "const": "https://in-toto.io/Statement/v1" },
+    "subject": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "digest"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "digest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sha256"],
+            "properties": {
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
+    "predicateType": { "const": "https://delegation-resilience.org/attestations/verification-bundle/v0alpha2" },
+    "predicate": { "$ref": "#/$defs/bundlePredicate" }
+  },
+  "$defs": {
+    "bundlePredicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["apiVersion", "kind", "metadata", "issuer", "createdAt", "profile", "attestations", "supportingArtifacts", "opaqueArtifacts", "dependencySnapshot"],
+      "properties": {
+        "apiVersion": { "const": "delegation-resilience.org/v0alpha2" },
+        "kind": { "const": "VerificationBundle" },
+        "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+        "issuer": { "$ref": "common.schema.json#/$defs/identity" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "profile": { "$ref": "common.schema.json#/$defs/artifactReference" },
+        "attestations": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/exerciseAttestation" }
+        },
+        "supportingArtifacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/supportingArtifact" }
+        },
+        "opaqueArtifacts": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/artifactReference" }
+        },
+        "dependencySnapshot": { "$ref": "#/$defs/dependencySnapshot" }
+      }
+    },
+    "signedArtifactBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "artifact", "proof"],
+      "properties": {
+        "role": { "type": "string" },
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactReference" },
+        "proof": { "$ref": "common.schema.json#/$defs/artifactReference" }
+      }
+    },
+    "exerciseAttestation": {
+      "allOf": [
+        { "$ref": "#/$defs/signedArtifactBase" },
+        { "properties": { "role": { "const": "exercise_attestation" } } }
+      ]
+    },
+    "supportingArtifact": {
+      "allOf": [
+        { "$ref": "#/$defs/signedArtifactBase" },
+        { "properties": { "role": { "enum": ["exercise_evidence", "human_evidence"] } } }
+      ]
+    },
+    "dependencySnapshot": {
+      "allOf": [
+        { "$ref": "#/$defs/signedArtifactBase" },
+        { "properties": { "role": { "const": "dependency_snapshot" } } }
+      ]
+    }
+  }
+}

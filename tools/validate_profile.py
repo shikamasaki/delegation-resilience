@@ -14,6 +14,11 @@ import rfc8785
 import yaml
 
 try:
+    from tools.data_loading import load_data
+except ModuleNotFoundError:  # Direct `python tools/validate_profile.py` execution.
+    from data_loading import load_data
+
+try:
     from tools.artifact_validation import (
         load_local_artifact,
         validate_exercise_evidence,
@@ -304,8 +309,15 @@ def _deterministic_replay_artifacts(
             from game_days.refund.shared_fate import build_artifacts
 
             return build_artifacts(profile)
-    except (KeyError, OSError, TypeError, ValueError, yaml.YAMLError):
-        return {}
+    except (
+        KeyError,
+        ModuleNotFoundError,
+        OSError,
+        TypeError,
+        ValueError,
+        yaml.YAMLError,
+    ) as exc:
+        return {"__replay_error__": str(exc).encode("utf-8")}
     return {}
 
 
@@ -316,6 +328,8 @@ def validate_attestation(
     *,
     artifact_base: pathlib.Path | None = None,
     artifact_root: pathlib.Path | None = None,
+    portable_supported_capabilities: dict[str, set[str]] | None = None,
+    verified_evidence_issuers: dict[str, dict[str, Any]] | None = None,
 ) -> list[str]:
     """Validate an attestation against the profile and its evidence ceilings."""
     errors: list[str] = []
@@ -411,11 +425,21 @@ def validate_attestation(
     replay_verified_observation_ids: set[str] = set()
     environment_ref = attestation.get("systemUnderTest", {}).get("environment", "")
     attestation_issuer = attestation.get("issuer", {})
+    portable_verification_context = portable_supported_capabilities is not None
+    portable_supported_capabilities = portable_supported_capabilities or {}
+    verified_evidence_issuers = verified_evidence_issuers or {}
     replay_artifacts = (
         _deterministic_replay_artifacts(profile, scenario_ref)
         if attestation.get("exerciseMode") == "deterministic_simulation"
+        and not portable_verification_context
         else {}
     )
+    replay_error = replay_artifacts.pop("__replay_error__", None)
+    if replay_error is not None:
+        errors.append(
+            "deterministic replay is unavailable: "
+            + replay_error.decode("utf-8", errors="replace")
+        )
     replay_attestation: dict[str, Any] = {}
     replay_attestation_bytes = replay_artifacts.get("attestation.yaml")
     if replay_attestation_bytes is not None:
@@ -434,7 +458,10 @@ def validate_attestation(
             environment_ref=environment_ref,
             evidence_requirement_ref=str(observation.get("evidenceRequirementRef", "")),
             finding=str(observation.get("finding", "")),
-            issuer=attestation_issuer,
+            issuer=verified_evidence_issuers.get(
+                str(observation.get("artifact", {}).get("digest")),
+                attestation_issuer,
+            ),
             observation_observed_at=str(observation.get("observedAt", "")),
             as_of=as_of,
         )
@@ -611,6 +638,10 @@ def validate_attestation(
                     f"{binding_owner} cites evidence outside its claim result"
                 )
             if capability not in {"handover", "human_takeover"}:
+                if capability in portable_supported_capabilities.get(
+                    str(claim_ref), set()
+                ):
+                    continue
                 unreplayed = binding_evidence - replay_verified_satisfied_evidence
                 if unreplayed:
                     errors.append(
@@ -855,11 +886,7 @@ def validate_attestation(
 
 
 def _load_yaml(path: pathlib.Path) -> dict[str, Any]:
-    with path.open("r", encoding="utf-8") as handle:
-        loaded = yaml.safe_load(handle)
-    if not isinstance(loaded, dict):
-        raise ValueError(f"{path} must contain a mapping")
-    return loaded
+    return load_data(path)
 
 
 def main() -> int:

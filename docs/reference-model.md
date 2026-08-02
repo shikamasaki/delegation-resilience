@@ -134,7 +134,7 @@ Fallbackは`configured`と`qualified`を区別します。所定のexerciseに�
 
 ### ExerciseSpec and Attestation
 
-`ExerciseSpec`はinject、前提、観測範囲、合格条件を定義します。実測結果は契約本文へ書き戻さず、署名付き`Attestation`として保存します。
+`ExerciseSpec`はinject、前提、観測範囲、合格条件を定義します。実測結果は契約本文へ書き戻しません。Attestation自体の自己申告issuerと、DSSE署名・bundle外trust policyから認証されたissuerを区別し、portable bundleの検証結果として真正性を導出します。
 
 Attestationには次を含めます。
 

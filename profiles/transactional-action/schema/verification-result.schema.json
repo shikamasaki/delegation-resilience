@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Portable Verification Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "packetVerificationOutcome", "bundleDigest", "verifier", "evaluatedAt", "inputs", "checks", "authenticatedIssuers", "claimResults", "errors", "limitations", "decisionBoundary"],
+  "properties": {
+    "apiVersion": { "const": "delegation-resilience.org/v0alpha2" },
+    "kind": { "const": "VerificationResult" },
+    "packetVerificationOutcome": { "enum": ["PACKET_VERIFIED", "PACKET_REJECTED"] },
+    "bundleDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "verifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "codeDigest", "environmentDigest", "runtime"],
+      "properties": {
+        "name": { "const": "delegation-resilience-portable-verifier" },
+        "version": { "type": "string", "minLength": 1 },
+        "codeDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "environmentDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "runtime": { "const": "CPython-3.12.8" }
+      }
+    },
+    "evaluatedAt": { "type": "string", "format": "date-time" },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trustPolicyDigest", "trustPolicySequenceNumber", "minimumTrustPolicySequence", "expectedVerifierCodeDigest", "expectedVerifierEnvironmentDigest", "dependencySnapshotDigest"],
+      "properties": {
+        "trustPolicyDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "trustPolicySequenceNumber": { "type": "integer", "minimum": 1 },
+        "minimumTrustPolicySequence": { "type": "integer", "minimum": 1 },
+        "expectedVerifierCodeDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "expectedVerifierEnvironmentDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "dependencySnapshotDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "authenticatedIssuers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "independenceDomain", "purposes"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "minLength": 1 },
+          "independenceDomain": { "type": "string", "minLength": 1 },
+          "purposes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conformance", "integrity", "signature", "issuerTrust", "freshness"],
+      "properties": {
+        "conformance": { "enum": ["VALID", "INVALID"] },
+        "integrity": { "enum": ["VERIFIED", "FAILED"] },
+        "signature": { "enum": ["VALID", "INVALID", "NOT_CHECKED"] },
+        "issuerTrust": { "enum": ["TRUSTED", "UNTRUSTED", "NOT_CHECKED"] },
+        "freshness": { "enum": ["CURRENT_RELATIVE_TO_SNAPSHOT", "STALE", "REVIEW_REQUIRED", "UNKNOWN"] }
+      }
+    },
+    "claimResults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claimRef", "attestationDigest", "attestedResult", "verifiedSupport", "supportedCapabilities", "unsupportedCapabilities", "freshness", "blockers", "evidenceGaps"],
+        "properties": {
+          "claimRef": { "type": "string", "minLength": 1 },
+          "attestationDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "attestedResult": { "enum": ["demonstrated", "not_demonstrated", "failed", "inconclusive"] },
+          "verifiedSupport": { "enum": ["SUPPORTED", "CONTRADICTED", "UNKNOWN"] },
+          "supportedCapabilities": { "type": "array", "uniqueItems": true, "items": { "$ref": "common.schema.json#/$defs/recoveryCapability" } },
+          "unsupportedCapabilities": { "type": "array", "uniqueItems": true, "items": { "$ref": "common.schema.json#/$defs/recoveryCapability" } },
+          "freshness": { "enum": ["CURRENT_RELATIVE_TO_SNAPSHOT", "STALE", "REVIEW_REQUIRED", "UNKNOWN"] },
+          "blockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "evidenceGaps": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    },
+    "errors": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "limitations": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "decisionBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deploymentDisposition"],
+      "properties": { "deploymentDisposition": { "const": "NOT_EVALUATED" } }
+    }
+  }
+}

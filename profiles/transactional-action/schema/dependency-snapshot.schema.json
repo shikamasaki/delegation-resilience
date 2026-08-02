@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Assurance Dependency Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "evaluatedProfile", "issuer", "observedAt", "validUntil", "dependencies"],
+  "properties": {
+    "apiVersion": { "const": "delegation-resilience.org/v0alpha2" },
+    "kind": { "const": "DependencySnapshot" },
+    "metadata": { "$ref": "common.schema.json#/$defs/metadata" },
+    "evaluatedProfile": { "$ref": "common.schema.json#/$defs/artifactReference" },
+    "issuer": { "$ref": "common.schema.json#/$defs/identity" },
+    "observedAt": { "type": "string", "format": "date-time" },
+    "validUntil": { "type": "string", "format": "date-time" },
+    "dependencies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "id", "observedVersion"],
+        "properties": {
+          "type": { "enum": ["model", "prompt", "tool", "policy", "grant", "connector", "outcome_source", "human_role", "dependency"] },
+          "id": { "type": "string", "minLength": 1 },
+          "observedVersion": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

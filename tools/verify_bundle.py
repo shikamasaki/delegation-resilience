@@ -227,6 +227,7 @@ def verify_bundle(
 
     loaded_artifacts: dict[str, tuple[dict[str, Any], bytes, pathlib.Path]] = {}
     verified_artifacts: dict[str, VerifiedStatement] = {}
+    verified_proof_count = 1 if bundle_statement is not None else 0
     profile: dict[str, Any] = {}
     dependency_snapshot: dict[str, Any] = {}
     attestation_entries: list[tuple[dict[str, Any], pathlib.Path]] = []
@@ -295,6 +296,11 @@ def verify_bundle(
             *predicate["supportingArtifacts"],
             predicate["dependencySnapshot"],
         ]
+        signed_artifact_digests = [item["artifact"]["digest"] for item in signed_items]
+        if len(signed_artifact_digests) != len(set(signed_artifact_digests)):
+            integrity_errors.append(
+                "bundle contains duplicate signed artifact digest"
+            )
         required_proof_count = 1 + len(signed_items)
         for item in signed_items:
             role = item["role"]
@@ -350,6 +356,8 @@ def verify_bundle(
                 )
                 or signature_not_checked
             )
+            if statement is not None:
+                verified_proof_count += 1
             digest = item["artifact"]["digest"]
             loaded_artifacts[digest] = (
                 artifact,
@@ -482,6 +490,15 @@ def verify_bundle(
                 }
             )
 
+    all_required_proofs_verified = (
+        verified_proof_count == required_proof_count
+        and not signature_errors
+        and not signature_not_checked
+    )
+    if not all_required_proofs_verified:
+        integrity_errors.append(
+            "not every required signed artifact proof was verified"
+        )
     all_errors = sorted(
         set(
             conformance_errors
@@ -491,18 +508,10 @@ def verify_bundle(
             + freshness_errors
         )
     )
-    verified_statements = [
-        statement
-        for statement in [bundle_statement, *verified_artifacts.values()]
-        if statement is not None
-    ]
-    all_required_proofs_verified = (
-        len(verified_statements) == required_proof_count
-        and not signature_errors
-        and not signature_not_checked
-    )
     issuer_groups: dict[tuple[str, str, str], set[str]] = {}
-    for statement in verified_statements:
+    for statement in [bundle_statement, *verified_artifacts.values()]:
+        if statement is None:
+            continue
         key = (
             str(statement.issuer.get("id")),
             str(statement.issuer.get("type")),
@@ -519,11 +528,30 @@ def verify_bundle(
         global_freshness = "REVIEW_REQUIRED"
     else:
         global_freshness = "CURRENT_RELATIVE_TO_SNAPSHOT"
+    signature_status = (
+        "INVALID"
+        if signature_errors
+        else "VALID"
+        if signature_attempted and not signature_not_checked
+        else "NOT_CHECKED"
+    )
+    issuer_trust_status = (
+        "UNTRUSTED"
+        if issuer_trust_errors
+        else "TRUSTED"
+        if all_required_proofs_verified
+        else "NOT_CHECKED"
+    )
+    packet_verified = (
+        not all_errors
+        and signature_status == "VALID"
+        and issuer_trust_status == "TRUSTED"
+    )
     result = {
         "apiVersion": "delegation-resilience.org/v0alpha2",
         "kind": "VerificationResult",
         "packetVerificationOutcome": (
-            "PACKET_REJECTED" if all_errors else "PACKET_VERIFIED"
+            "PACKET_VERIFIED" if packet_verified else "PACKET_REJECTED"
         ),
         "bundleDigest": byte_digest(bundle_bytes),
         "verifier": {
@@ -549,20 +577,8 @@ def verify_bundle(
         "checks": {
             "conformance": "INVALID" if conformance_errors else "VALID",
             "integrity": "FAILED" if integrity_errors else "VERIFIED",
-            "signature": (
-                "INVALID"
-                if signature_errors
-                else "VALID"
-                if signature_attempted and not signature_not_checked
-                else "NOT_CHECKED"
-            ),
-            "issuerTrust": (
-                "UNTRUSTED"
-                if issuer_trust_errors
-                else "TRUSTED"
-                if all_required_proofs_verified
-                else "NOT_CHECKED"
-            ),
+            "signature": signature_status,
+            "issuerTrust": issuer_trust_status,
             "freshness": global_freshness,
         },
         "authenticatedIssuers": [

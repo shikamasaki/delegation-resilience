@@ -26,7 +26,9 @@ class AssuranceGraphTest(unittest.TestCase):
         result = validate_graph(self.graph, artifact_root=self.artifact_root)
         self.assertEqual("GRAPH_VERIFIED", result["graphVerificationOutcome"])
         self.assertEqual("NOT_DEMONSTRATED", result["claimResults"][0]["verifiedSupport"])
-        self.assertTrue(any("shares fate" in reason for reason in result["claimResults"][0]["reasons"]))
+        reasons = result["claimResults"][0]["reasons"]
+        self.assertTrue(any("shares fate" in reason for reason in reasons))
+        self.assertIn("claim is invalidated", reasons)
 
     def test_canonical_graph_and_standalone_result_are_deterministic(self):
         first = canonical_graph_bytes(self.graph)
